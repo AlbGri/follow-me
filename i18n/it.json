@@ -79,5 +79,12 @@
   "image.done": "Immagine scaricata.",
   "image.empty": "Nessuna tappa da esportare.",
   "storage.notice": "I viaggi sono salvati solo in questo browser, e alcuni (Safari su iPhone) cancellano i dati dei siti non aperti per qualche giorno. Installa l'app sulla schermata Home o esporta il testo per tenerne una copia.",
-  "storage.dismiss": "Ho capito"
+  "storage.dismiss": "Ho capito",
+  "install.button": "Salva app",
+  "install.title": "Salva l'app sul dispositivo",
+  "install.intro": "Installata, Follow me si apre dalla schermata Home come un'app, funziona anche offline e il browser non cancella i tuoi viaggi per inutilizzo.",
+  "install.steps.ios": "Tocca il pulsante Condividi (il quadrato con la freccia in su).\nScorri e tocca \"Aggiungi alla schermata Home\".\nConferma con \"Aggiungi\".",
+  "install.steps.android": "Tocca il menu ⋮ in alto a destra.\nTocca \"Installa app\" o \"Aggiungi a schermata Home\".\nConferma.",
+  "install.steps.desktop": "Chrome o Edge: clicca l'icona di installazione a destra nella barra degli indirizzi, oppure scegli \"Installa\" dal menu.\nSafari su Mac: menu File > \"Aggiungi al Dock\".\nFirefox non installa app web: puoi aggiungere la pagina ai preferiti.",
+  "install.iosNote": "Da iOS 16.4 funziona anche da Chrome ed Edge, dal loro menu Condividi; prima solo da Safari."
 }

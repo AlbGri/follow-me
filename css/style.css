@@ -126,6 +126,21 @@ select {
   font-size: 1.3rem;
 }
 
+.header-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.header-actions button {
+  white-space: nowrap;
+}
+
+.install-steps {
+  margin: 0;
+  padding-left: 22px;
+  line-height: 1.5;
+}
+
 /* Mostra la lingua verso cui si passa: bandiera disegnata qui, non emoji (su Windows diventa due lettere) */
 .language-toggle {
   display: inline-flex;

@@ -79,5 +79,12 @@
   "image.done": "Image downloaded.",
   "image.empty": "No stops to export.",
   "storage.notice": "Trips are saved only in this browser, and some (Safari on iPhone) delete data of sites not opened for a few days. Install the app on the Home screen or export the text to keep a copy.",
-  "storage.dismiss": "Got it"
+  "storage.dismiss": "Got it",
+  "install.button": "Install app",
+  "install.title": "Install the app on your device",
+  "install.intro": "Once installed, Follow me opens from the Home screen like an app, works offline too, and the browser will not delete your trips for inactivity.",
+  "install.steps.ios": "Tap the Share button (the square with an up arrow).\nScroll and tap \"Add to Home Screen\".\nConfirm with \"Add\".",
+  "install.steps.android": "Tap the ⋮ menu at the top right.\nTap \"Install app\" or \"Add to Home screen\".\nConfirm.",
+  "install.steps.desktop": "Chrome or Edge: click the install icon on the right of the address bar, or choose \"Install\" from the menu.\nSafari on Mac: File menu > \"Add to Dock\".\nFirefox does not install web apps: you can bookmark the page.",
+  "install.iosNote": "Since iOS 16.4 it also works from Chrome and Edge, via their Share menu; before only from Safari."
 }

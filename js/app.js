@@ -18,6 +18,7 @@ import { openDialog, closeDialog, hint, actions, closeButton, copyText } from '.
 import { openTextExport, openTextImport, openShareLink } from './transfer.js';
 import { createShareUrl, readSharedText } from './share.js';
 import { renderTripImage } from './export-image.js';
+import { setupInstallButton, isInstalled } from './install.js';
 
 const STORAGE_NOTICE_KEY = 'followme.storageNoticeDismissed';
 const TOAST_DURATION_MS = 6000;
@@ -665,9 +666,8 @@ async function openSharedTrip() {
  */
 async function checkStorage() {
   if (localStorage.getItem(STORAGE_NOTICE_KEY)) return;
-  const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const persisted = await navigator.storage?.persisted?.().catch(() => false);
-  if (installed || persisted) return;
+  if (isInstalled() || persisted) return;
   const text = el('span', { textContent: t('storage.notice') });
   text.dataset.i18n = 'storage.notice';
   const dismiss = el('button', {
@@ -731,5 +731,6 @@ refresh();
 fitStops(visibleStops());
 openSharedTrip();
 checkStorage();
+setupInstallButton(byId('install-app'));
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
