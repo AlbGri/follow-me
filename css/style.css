@@ -197,6 +197,11 @@ button.primary {
   gap: 6px;
 }
 
+.share-url {
+  width: 100%;
+  font-size: 0.85rem;
+}
+
 .file-label {
   display: block;
   font-size: 0.85rem;

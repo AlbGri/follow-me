@@ -43,5 +43,15 @@
   "import.empty": "No stops found in the text.",
   "import.geocoding": "Searching \"{name}\" ({current}/{total})...",
   "import.notFound": "not found, will be skipped",
-  "import.summary": "{count} of {total} stops ready to import. Check the places found."
+  "import.summary": "{count} of {total} stops ready to import. Check the places found.",
+  "action.shareLink": "Share link",
+  "action.exportImage": "Export image",
+  "share.title": "Share link",
+  "share.help": "The trip is stored in the link itself: whoever opens it can import it, no account needed.",
+  "share.length": "Length: {count} characters.",
+  "share.native": "Share...",
+  "share.received": "Someone shared a trip with you: check it and import it.",
+  "share.invalid": "The share link is invalid or incomplete.",
+  "image.working": "Preparing the image...",
+  "image.error": "Could not create the image."
 }

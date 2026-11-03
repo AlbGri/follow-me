@@ -2,9 +2,11 @@ import { initI18n, setLanguage, getLanguage, t } from './i18n.js';
 import { loadState, saveState, createTrip, createDay, createStop, roundCoordinate } from './store.js';
 import { createMap, renderTrip, fitStops, flyTo, dayColor } from './map.js';
 import { searchPlaces, reversePlace } from './geocode.js';
-import { el, byId, slugify } from './dom.js';
+import { el, byId, slugify, downloadBlob } from './dom.js';
 import { tripToText } from './textformat.js';
-import { openTextExport, openTextImport } from './transfer.js';
+import { openTextExport, openTextImport, openShareLink } from './transfer.js';
+import { createShareUrl, readSharedText } from './share.js';
+import { renderTripImage } from './export-image.js';
 
 const state = loadState();
 let activeDayId = currentTrip().days[0]?.id ?? null;
@@ -26,6 +28,8 @@ const elements = {
   dayFilter: byId('day-filter'),
   importText: byId('import-text'),
   exportText: byId('export-text'),
+  shareLink: byId('share-link'),
+  exportImage: byId('export-image'),
 };
 
 function currentTrip() {
@@ -352,8 +356,39 @@ function importTrip(parsed) {
       .map((stop) => ({ ...createStop(stop.name, stop.lat, stop.lng), time: stop.time })),
   }));
   if (days.length) trip.days = days;
+  // un viaggio corrente ancora vuoto (es. quello creato al primo avvio) viene sostituito
+  const current = currentTrip();
+  const isEmpty = !current.title && current.days.every((day) => day.stops.length === 0);
+  if (isEmpty) state.trips.splice(state.trips.indexOf(current), 1);
   state.trips.push(trip);
   switchTrip(trip.id);
+}
+
+/** Scarica il PNG di cio' che si vede sulla mappa (rispetta il filtro giorni). */
+async function exportImage() {
+  const trip = currentTrip();
+  showStatus(t('image.working'));
+  try {
+    const days = trip.days
+      .map((day, dayIndex) => ({ day, dayIndex }))
+      .filter(({ day }) => day.stops.length && (!visibleDayId || day.id === visibleDayId))
+      .map(({ day, dayIndex }) => ({ label: dayLabel(day, dayIndex), color: dayColor(dayIndex), stops: day.stops }));
+    const blob = await renderTripImage({ title: tripLabel(trip), days });
+    downloadBlob(blob, `${slugify(trip.title)}.png`);
+    showStatus('');
+  } catch (error) {
+    console.error(error);
+    showStatus(t('image.error'));
+  }
+}
+
+async function openSharedTrip() {
+  try {
+    const text = await readSharedText();
+    if (text) openTextImport({ text, notice: t('share.received'), onImport: importTrip });
+  } catch {
+    showStatus(t('share.invalid'));
+  }
 }
 
 function pickPlace(place) {
@@ -393,6 +428,12 @@ elements.tripTitle.addEventListener('input', () => {
   elements.tripSelect.selectedOptions[0].textContent = tripLabel(trip);
 });
 elements.searchForm.addEventListener('submit', onSearch);
+elements.shareLink.addEventListener('click', async () => {
+  openShareLink(await createShareUrl(currentTripText()), tripLabel(currentTrip()));
+});
+elements.exportImage.addEventListener('click', exportImage);
+// link incollato con l'app gia' aperta: cambia solo l'hash, senza ricaricare
+window.addEventListener('hashchange', openSharedTrip);
 elements.importText.addEventListener('click', () => openTextImport({ onImport: importTrip }));
 elements.exportText.addEventListener('click', () => {
   openTextExport(currentTripText(), `${slugify(currentTrip().title)}.txt`);
@@ -406,3 +447,4 @@ elements.dayAdd.addEventListener('click', () => {
 
 refresh();
 fitStops(visibleStops());
+openSharedTrip();

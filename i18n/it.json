@@ -43,5 +43,15 @@
   "import.empty": "Nessuna tappa trovata nel testo.",
   "import.geocoding": "Cerco \"{name}\" ({current}/{total})...",
   "import.notFound": "non trovata, verrà saltata",
-  "import.summary": "{count} tappe su {total} pronte da importare. Controlla i luoghi trovati."
+  "import.summary": "{count} tappe su {total} pronte da importare. Controlla i luoghi trovati.",
+  "action.shareLink": "Link di condivisione",
+  "action.exportImage": "Esporta immagine",
+  "share.title": "Link di condivisione",
+  "share.help": "Il viaggio è contenuto nel link stesso: chi lo apre può importarlo, senza account.",
+  "share.length": "Lunghezza: {count} caratteri.",
+  "share.native": "Condividi...",
+  "share.received": "Ti hanno condiviso un viaggio: controllalo e importalo.",
+  "share.invalid": "Il link di condivisione non è valido o è incompleto.",
+  "image.working": "Preparo l'immagine...",
+  "image.error": "Non è stato possibile creare l'immagine."
 }

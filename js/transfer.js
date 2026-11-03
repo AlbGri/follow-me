@@ -55,6 +55,23 @@ export function openTextExport(text, filename) {
   );
 }
 
+/** Mostra il link di condivisione, con condivisione nativa dove disponibile (mobile). */
+export function openShareLink(url, title) {
+  const status = el('p', { className: 'status' });
+  const input = el('input', { className: 'share-url', value: url, readOnly: true, onfocus: () => input.select() });
+  const nativeShare = navigator.share
+    ? [el('button', { type: 'button', textContent: t('share.native'), onclick: () => navigator.share({ title, url }).catch(() => {}) })]
+    : [];
+  openDialog(
+    t('share.title'),
+    hint(t('share.help')),
+    input,
+    hint(t('share.length', { count: url.length })),
+    status,
+    actions(copyButton(url, status), ...nativeShare, closeButton()),
+  );
+}
+
 /**
  * Import da testo: analizza, cerca per nome le tappe senza coordinate, mostra il riepilogo
  * e chiama onImport(viaggio letto) alla conferma. Con text gia' presente l'analisi parte subito.
