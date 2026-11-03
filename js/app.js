@@ -20,6 +20,7 @@ import { createShareUrl, readSharedText } from './share.js';
 import { renderTripImage } from './export-image.js';
 import { setupInstallButton, isInstalled } from './install.js';
 import { placeUrl, directionsUrl, routeUrls } from './gmaps.js';
+import { dayIsoDate, formatDate } from './dates.js';
 
 const STORAGE_NOTICE_KEY = 'followme.storageNoticeDismissed';
 const TOAST_DURATION_MS = 6000;
@@ -40,6 +41,7 @@ const elements = {
   tripNew: byId('trip-new'),
   tripDelete: byId('trip-delete'),
   tripTitle: byId('trip-title'),
+  tripStart: byId('trip-start'),
   searchForm: byId('search-form'),
   searchInput: byId('search-input'),
   searchResults: byId('search-results'),
@@ -73,8 +75,18 @@ function tripLabel(trip) {
   return trip.title || t('trip.untitled');
 }
 
+function dayDate(dayIndex, style = 'short') {
+  return formatDate(dayIsoDate(currentTrip().startDate, dayIndex), getLanguage(), style);
+}
+
+/** Nome breve del giorno (chip, menu): la data se c'e', altrimenti il titolo o "Giorno N". */
+function dayName(day, dayIndex) {
+  return dayDate(dayIndex) || day.label || t('day.default', { n: dayIndex + 1 });
+}
+
+/** Nome completo del giorno: data e titolo insieme. */
 function dayLabel(day, dayIndex) {
-  return day.label || t('day.default', { n: dayIndex + 1 });
+  return [dayDate(dayIndex, 'long'), day.label].filter(Boolean).join(' · ') || t('day.default', { n: dayIndex + 1 });
 }
 
 function findStop(stopId) {
@@ -126,7 +138,7 @@ function renderDayFilter(trip) {
   };
   elements.dayFilter.replaceChildren(
     chip(t('day.all'), null),
-    ...trip.days.map((day, dayIndex) => chip(dayLabel(day, dayIndex), day.id, dayColor(dayIndex))),
+    ...trip.days.map((day, dayIndex) => chip(dayName(day, dayIndex), day.id, dayColor(dayIndex))),
   );
 }
 
@@ -157,6 +169,7 @@ function renderTripBar() {
     ),
   );
   elements.tripTitle.value = trip.title;
+  elements.tripStart.value = trip.startDate ?? '';
 }
 
 function renderDays() {
@@ -182,7 +195,7 @@ function renderDay(day, dayIndex) {
   const labelInput = el('input', {
     className: 'day-label',
     value: day.label,
-    placeholder: t('day.default', { n: dayIndex + 1 }),
+    placeholder: dayDate(dayIndex) ? t('day.titlePlaceholder') : t('day.default', { n: dayIndex + 1 }),
     oninput: () => {
       day.label = labelInput.value.trim();
       save();
@@ -195,6 +208,7 @@ function renderDay(day, dayIndex) {
       { className: 'day-header' },
       iconButton(collapsed ? '▸' : '▾', t(collapsed ? 'day.expand' : 'day.collapse'), () => toggleCollapsed(day.id)),
       el('span', { className: 'day-dot', title: t('day.drag') }),
+      ...(dayDate(dayIndex) ? [el('span', { className: 'day-date', textContent: dayDate(dayIndex) })] : []),
       labelInput,
       el('span', { className: 'day-count', textContent: t('day.count', { count: day.stops.length }) }),
       iconButton('✎', t('day.editText'), () => startTextEdit(day)),
@@ -464,7 +478,7 @@ function openStopMenu(stopId) {
           const button = el('button', {
             type: 'button',
             className: 'chip',
-            textContent: dayLabel(target, targetIndex),
+            textContent: dayName(target, targetIndex),
             onclick: () => {
               closeDialog();
               onPick(target.id);
@@ -619,6 +633,7 @@ function currentTripText() {
 function importTrip(parsed) {
   const trip = createTrip();
   trip.title = parsed.title;
+  trip.startDate = parsed.startDate;
   const days = parsed.days.map((parsedDay) => ({
     ...createDay(),
     label: parsedDay.label,
@@ -729,6 +744,10 @@ elements.tripNew.addEventListener('click', () => {
   elements.tripTitle.focus();
 });
 elements.tripDelete.addEventListener('click', deleteTrip);
+elements.tripStart.addEventListener('change', () => {
+  currentTrip().startDate = elements.tripStart.value;
+  refresh();
+});
 elements.tripTitle.addEventListener('input', () => {
   const trip = currentTrip();
   trip.title = elements.tripTitle.value.trim();

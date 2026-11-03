@@ -91,5 +91,7 @@
   "maps.open": "Open in Google Maps",
   "maps.directions": "Directions to here",
   "maps.route": "Route in Google Maps",
-  "maps.routePart": "Google Maps, stops {from}-{to}"
+  "maps.routePart": "Google Maps, stops {from}-{to}",
+  "trip.startDate": "Date of the first day (optional): the others follow in order",
+  "day.titlePlaceholder": "Day title"
 }

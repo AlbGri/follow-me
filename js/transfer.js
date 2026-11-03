@@ -2,6 +2,7 @@
 import { el, downloadBlob } from './dom.js';
 import { t, getLanguage } from './i18n.js';
 import { textToTrip } from './textformat.js';
+import { dayIsoDate, formatDate } from './dates.js';
 import { searchPlaces, areaAround } from './geocode.js';
 import { openDialog, closeDialog, hint, actions, closeButton, copyText } from './dialog.js';
 
@@ -121,7 +122,7 @@ export function openTextImport({ text = '', notice = '', onImport }) {
       analyzeButton.disabled = false;
     }
 
-    review.replaceChildren(...parsed.days.map((day, dayIndex) => renderReviewDay(day, dayIndex)));
+    review.replaceChildren(...parsed.days.map((day, dayIndex) => renderReviewDay(day, dayIndex, parsed.startDate)));
     const ready = stops.filter((stop) => stop.lat !== null).length;
     status.textContent = t('import.summary', { count: ready, total: stops.length });
     confirmButton.disabled = ready === 0;
@@ -140,7 +141,9 @@ export function openTextImport({ text = '', notice = '', onImport }) {
   if (text) analyze();
 }
 
-function renderReviewDay(day, dayIndex) {
+function renderReviewDay(day, dayIndex, startDate) {
+  const date = formatDate(dayIsoDate(startDate, dayIndex), getLanguage(), 'long');
+  const heading = [date, day.label].filter(Boolean).join(' · ') || t('day.default', { n: dayIndex + 1 });
   const items = day.stops.map((stop) => {
     const detail = stop.lat === null ? t('import.notFound') : stop.found ?? '';
     return el(
@@ -153,7 +156,7 @@ function renderReviewDay(day, dayIndex) {
   return el(
     'section',
     {},
-    el('h3', { textContent: day.label || t('day.default', { n: dayIndex + 1 }) }),
+    el('h3', { textContent: heading }),
     items.length ? el('ol', {}, ...items) : hint(t('day.empty')),
   );
 }

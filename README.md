@@ -32,6 +32,8 @@ da condividere come testo, link o immagine.
 Orario e coordinate sono opzionali: le tappe senza coordinate vengono cercate per nome
 durante l'import. Le parole ("Giorno", "Day") non contano, solo i simboli `#`, `##` e i numeri.
 
+Se il viaggio ha una data di inizio, i giorni si scrivono con la loro data: `## 2026-10-31 - La Valletta`.
+
 ## Avvio locale
 Serve un server statico qualsiasi (i moduli ES non funzionano da `file://`), ad esempio:
 

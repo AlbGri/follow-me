@@ -184,6 +184,26 @@ select {
   flex: 1;
 }
 
+.trip-meta {
+  display: flex;
+  gap: 6px;
+}
+
+.trip-meta .trip-title {
+  flex: 1;
+}
+
+.trip-start {
+  flex-shrink: 0;
+}
+
+.day-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--day-color);
+}
+
 .trip-title {
   font-size: 1.1rem;
   font-weight: 600;

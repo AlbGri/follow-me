@@ -1,6 +1,7 @@
 # Changelog
 
 ## 0.3.0 - 2026-11-04
+- Data di inizio del viaggio: i giorni mostrano la propria data (es. "sab 31 ott"), anche nell'immagine e nel testo
 - Giorni riordinabili trascinando il pallino colorato
 - Link a Google Maps: luogo e indicazioni per ogni tappa, percorso del giorno (diviso in parti oltre 11 tappe)
 - Nome della tappa sulla mappa toccando il marker; la tappa viene evidenziata nella lista senza aprire la tastiera

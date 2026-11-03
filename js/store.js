@@ -1,7 +1,8 @@
 /**
  * @typedef {{id: string, name: string, lat: number, lng: number, time: string}} Stop
  * @typedef {{id: string, label: string, stops: Stop[]}} Day
- * @typedef {{id: string, title: string, days: Day[]}} Trip
+ * @typedef {{id: string, title: string, startDate: string, days: Day[]}} Trip
+ *   startDate: data ISO del primo giorno o '': le date dei giorni seguono la posizione
  * @typedef {{trips: Trip[], currentId: string}} State
  */
 
@@ -47,7 +48,7 @@ export function saveCollapsedDays(dayIds) {
 
 /** @returns {Trip} */
 export function createTrip() {
-  return { id: newId(), title: '', days: [createDay()] };
+  return { id: newId(), title: '', startDate: '', days: [createDay()] };
 }
 
 /** @returns {Day} */

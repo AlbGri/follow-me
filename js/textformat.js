@@ -1,4 +1,6 @@
 // Formato testo leggibile, vedi CLAUDE.md. Il parser riconosce i simboli, non le parole.
+import { parseDate, dayIsoDate, startDateFor } from './dates.js';
+
 const TITLE = /^#(?!#)\s*(.+)$/;
 const DAY = /^##\s*(.*)$/;
 const STOP = /^(?:\d+[.)]|[-*•])\s+(.+)$/;
@@ -7,16 +9,19 @@ const TIME = /^(\d{1,2})[:.](\d{2})(?:\s+(.*))?$/;
 const COORDINATES = /\s*\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)$/;
 // "Giorno 2 - Gozo", "Day 2: Gozo", "2 - Gozo" -> "Gozo": parola + numero iniziali sono il nome di default
 const DAY_PREFIX = /^(?:\S+\s+)?\d+\s*(?:[-–:]\s*(.*))?$/;
+// "2026-10-31 - Gozo", "31/10/2026: Gozo": la data al posto del nome di default
+const DAY_DATE = /^(\d{4}-\d{2}-\d{2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})\s*(?:[-–:,]\s*(.*))?$/;
 
 /**
- * Converte un viaggio in testo.
+ * Converte un viaggio in testo. Con la data di inizio i giorni si chiamano con la loro data ISO,
+ * l'unico formato che non si confonde tra lingue.
  * @param {object} trip viaggio del modello (store.js)
  * @param {{untitled: string, dayName: (n: number) => string}} names testi di default localizzati
  */
 export function tripToText(trip, { untitled, dayName }) {
   const lines = [`# ${trip.title || untitled}`];
   trip.days.forEach((day, dayIndex) => {
-    const name = dayName(dayIndex + 1);
+    const name = dayIsoDate(trip.startDate, dayIndex) || dayName(dayIndex + 1);
     lines.push('', day.label ? `## ${name} - ${day.label}` : `## ${name}`);
     if (day.stops.length) lines.push(stopsToText(day.stops));
   });
@@ -50,17 +55,21 @@ export function linesToStops(text) {
 /**
  * Legge un viaggio dal testo. Le righe non riconosciute vengono ignorate.
  * Le tappe senza coordinate hanno lat/lng null.
- * @returns {{title: string, days: {label: string, stops: {name: string, time: string, lat: ?number, lng: ?number}[]}[]}}
+ * La data di inizio viene dal primo giorno con una data; le date successive seguono la posizione.
+ * @returns {{title: string, startDate: string,
+ *   days: {label: string, stops: {name: string, time: string, lat: ?number, lng: ?number}[]}[]}}
  */
 export function textToTrip(text) {
-  const trip = { title: '', days: [] };
+  const trip = { title: '', startDate: '', days: [] };
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
     const day = line.match(DAY);
     const title = line.match(TITLE);
     const stop = line.match(STOP);
     if (day) {
-      trip.days.push({ label: parseDayLabel(day[1].trim()), stops: [] });
+      const { label, date } = parseDayHeader(day[1].trim());
+      if (date && !trip.startDate) trip.startDate = startDateFor(date, trip.days.length);
+      trip.days.push({ label, stops: [] });
     } else if (title) {
       trip.title ||= title[1].trim();
     } else if (stop) {
@@ -71,9 +80,12 @@ export function textToTrip(text) {
   return trip;
 }
 
-function parseDayLabel(text) {
+function parseDayHeader(text) {
+  const dated = text.match(DAY_DATE);
+  const date = dated ? parseDate(dated[1]) : '';
+  if (date) return { label: (dated[2] ?? '').trim(), date };
   const prefix = text.match(DAY_PREFIX);
-  return prefix ? (prefix[1] ?? '').trim() : text;
+  return { label: prefix ? (prefix[1] ?? '').trim() : text, date: '' };
 }
 
 function parseStop(text) {

@@ -91,5 +91,7 @@
   "maps.open": "Apri in Google Maps",
   "maps.directions": "Indicazioni per arrivarci",
   "maps.route": "Percorso in Google Maps",
-  "maps.routePart": "Google Maps, tappe {from}-{to}"
+  "maps.routePart": "Google Maps, tappe {from}-{to}",
+  "trip.startDate": "Data del primo giorno (facoltativa): le altre seguono in ordine",
+  "day.titlePlaceholder": "Titolo del giorno"
 }
