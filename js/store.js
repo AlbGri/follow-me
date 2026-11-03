@@ -6,6 +6,7 @@
  */
 
 const STORAGE_KEY = 'followme.state';
+const COLLAPSED_KEY = 'followme.collapsedDays';
 
 /** @returns {State} stato salvato, o uno nuovo con un viaggio vuoto. */
 export function loadState() {
@@ -28,6 +29,20 @@ export function loadState() {
 /** @param {State} state */
 export function saveState(state) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+/** Giorni compressi nella lista: stato di sola visualizzazione, salvato a parte. */
+export function loadCollapsedDays() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(COLLAPSED_KEY)) ?? []);
+  } catch {
+    return new Set();
+  }
+}
+
+/** @param {Set<string>} dayIds */
+export function saveCollapsedDays(dayIds) {
+  localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...dayIds]));
 }
 
 /** @returns {Trip} */

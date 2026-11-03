@@ -1,14 +1,15 @@
 // Service worker: l'app funziona offline (mappa esclusa).
 // File dell'app: prima la rete (gli aggiornamenti arrivano subito), cache se offline.
-// MapLibre da unpkg: versione fissata, quindi cache-first.
+// Librerie da CDN (MapLibre, SortableJS): versione fissata, quindi cache-first.
 // Tile e Nominatim non vengono mai messi in cache (policy dei servizi).
-const CACHE_NAME = 'follow-me-v1';
+const CACHE_NAME = 'follow-me-v2';
 const APP_FILES = [
   './',
   'index.html',
   'manifest.webmanifest',
   'css/style.css',
   'js/app.js',
+  'js/dialog.js',
   'js/dom.js',
   'js/export-image.js',
   'js/geocode.js',
@@ -23,10 +24,15 @@ const APP_FILES = [
   'icons/icon.svg',
   'icons/icon-192.png',
 ];
-const CDN_HOST = 'unpkg.com';
-// Versione allineata a index.html e js/map.js. Il worker viene richiesto con ?v=
+const CDN_HOSTS = ['unpkg.com', 'cdn.jsdelivr.net'];
+// Versioni allineate a index.html, js/map.js e js/app.js. Il worker di MapLibre viene richiesto con ?v=
 const MAPLIBRE = 'https://unpkg.com/maplibre-gl@6.16.0/dist';
-const CDN_FILES = [`${MAPLIBRE}/maplibre-gl.css`, `${MAPLIBRE}/maplibre-gl.mjs`, `${MAPLIBRE}/maplibre-gl-worker.mjs?v=6.16.0`];
+const CDN_FILES = [
+  `${MAPLIBRE}/maplibre-gl.css`,
+  `${MAPLIBRE}/maplibre-gl.mjs`,
+  `${MAPLIBRE}/maplibre-gl-worker.mjs?v=6.16.0`,
+  'https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/modular/sortable.esm.js',
+];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([...APP_FILES, ...CDN_FILES])));
@@ -48,7 +54,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin === location.origin) {
     event.respondWith(networkFirst(request));
-  } else if (url.host === CDN_HOST) {
+  } else if (CDN_HOSTS.includes(url.host)) {
     event.respondWith(cacheFirst(request));
   }
 });

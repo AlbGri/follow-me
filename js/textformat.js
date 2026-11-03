@@ -2,6 +2,7 @@
 const TITLE = /^#(?!#)\s*(.+)$/;
 const DAY = /^##\s*(.*)$/;
 const STOP = /^(?:\d+[.)]|[-*•])\s+(.+)$/;
+const LINE_PREFIX = /^(?:\d+[.)]|[-*•])\s*/;
 const TIME = /^(\d{1,2})[:.](\d{2})(?:\s+(.*))?$/;
 const COORDINATES = /\s*\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)$/;
 // "Giorno 2 - Gozo", "Day 2: Gozo", "2 - Gozo" -> "Gozo": parola + numero iniziali sono il nome di default
@@ -17,12 +18,33 @@ export function tripToText(trip, { untitled, dayName }) {
   trip.days.forEach((day, dayIndex) => {
     const name = dayName(dayIndex + 1);
     lines.push('', day.label ? `## ${name} - ${day.label}` : `## ${name}`);
-    day.stops.forEach((stop, stopIndex) => {
-      const parts = [`${stopIndex + 1}.`, stop.time, stop.name, `(${formatCoordinate(stop.lat)}, ${formatCoordinate(stop.lng)})`];
-      lines.push(parts.filter(Boolean).join(' '));
-    });
+    if (day.stops.length) lines.push(stopsToText(day.stops));
   });
   return `${lines.join('\n')}\n`;
+}
+
+/** Una tappa come riga senza numero: "09:00 Nome (lat, lng)". Coordinate omesse se assenti. */
+export function stopToLine(stop) {
+  const coordinates = stop.lat === null ? '' : `(${formatCoordinate(stop.lat)}, ${formatCoordinate(stop.lng)})`;
+  return [stop.time, stop.name, coordinates].filter(Boolean).join(' ');
+}
+
+/** Tappe come righe numerate. */
+export function stopsToText(stops) {
+  return stops.map((stop, index) => `${index + 1}. ${stopToLine(stop)}`).join('\n');
+}
+
+/**
+ * Tappe di un singolo giorno: ogni riga non vuota e' una tappa, numero o trattino iniziali opzionali
+ * (la numerazione viene comunque rifatta). Le righe che iniziano con # sono ignorate.
+ */
+export function linesToStops(text) {
+  return text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line && !line.startsWith('#'))
+    .map((line) => parseStop(line.replace(LINE_PREFIX, '')))
+    .filter((stop) => stop.name || stop.lat !== null);
 }
 
 /**

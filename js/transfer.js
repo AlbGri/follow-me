@@ -1,37 +1,12 @@
 // Finestre di import/export del viaggio
-import { el, byId, downloadBlob } from './dom.js';
+import { el, downloadBlob } from './dom.js';
 import { t, getLanguage } from './i18n.js';
 import { textToTrip } from './textformat.js';
-import { searchPlaces } from './geocode.js';
-
-const dialog = byId('dialog');
-dialog.addEventListener('click', (event) => {
-  if (event.target === dialog) dialog.close();
-});
-
-function openDialog(title, ...content) {
-  dialog.replaceChildren(el('h2', { textContent: title }), ...content);
-  if (!dialog.open) dialog.showModal();
-}
-
-const hint = (text) => el('p', { className: 'hint', textContent: text });
-const actions = (...buttons) => el('div', { className: 'dialog-actions' }, ...buttons);
-const closeButton = () => el('button', { type: 'button', textContent: t('dialog.close'), onclick: () => dialog.close() });
+import { searchPlaces, areaAround } from './geocode.js';
+import { openDialog, closeDialog, hint, actions, closeButton, copyText } from './dialog.js';
 
 function copyButton(text, status) {
-  return el('button', {
-    type: 'button',
-    className: 'primary',
-    textContent: t('dialog.copy'),
-    onclick: async () => {
-      try {
-        await navigator.clipboard.writeText(text);
-        status.textContent = t('dialog.copied');
-      } catch {
-        status.textContent = t('dialog.copyError');
-      }
-    },
-  });
+  return el('button', { type: 'button', className: 'primary', textContent: t('dialog.copy'), onclick: () => copyText(text, status) });
 }
 
 /** Mostra il viaggio come testo, da copiare o scaricare come .txt. */
@@ -107,7 +82,7 @@ export function openTextImport({ text = '', notice = '', onImport }) {
     disabled: true,
     onclick: () => {
       onImport(parsed);
-      dialog.close();
+      closeDialog();
     },
   });
 
@@ -126,7 +101,9 @@ export function openTextImport({ text = '', notice = '', onImport }) {
     try {
       for (const [index, stop] of missing.entries()) {
         status.textContent = t('import.geocoding', { name: stop.name, current: index + 1, total: missing.length });
-        const [place] = stop.name ? await searchPlaces(stop.name, getLanguage()) : [];
+        // zona preferita: quella delle tappe gia' localizzate in questo testo
+        const area = areaAround(stops);
+        const [place] = stop.name ? await searchPlaces(stop.name, getLanguage(), area) : [];
         if (place) Object.assign(stop, { lat: place.lat, lng: place.lng, found: place.description });
       }
     } catch {

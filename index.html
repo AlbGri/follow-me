@@ -20,6 +20,7 @@
         <h1>Follow me</h1>
         <button id="language-toggle" type="button" class="link-button"></button>
       </header>
+      <p id="storage-notice" class="notice storage-notice" hidden></p>
 
       <div class="trip-bar">
         <select id="trip-select" data-i18n-title="trip.select"></select>
@@ -40,7 +41,10 @@
       </form>
       <ul id="search-results" class="search-results"></ul>
       <p id="status" class="status" aria-live="polite"></p>
-      <p class="hint" data-i18n="hint.click"></p>
+      <div class="days-bar">
+        <p class="hint" data-i18n="hint.click"></p>
+        <button id="collapse-all" type="button" class="link-button"></button>
+      </div>
 
       <div id="days" class="days"></div>
       <button id="day-add" type="button" data-i18n="day.add"></button>
@@ -51,5 +55,9 @@
     </main>
   </div>
   <dialog id="dialog" class="dialog"></dialog>
+  <div id="toast" class="toast" role="status" hidden>
+    <span id="toast-message"></span>
+    <button id="toast-undo" type="button" data-i18n="undo.action"></button>
+  </div>
 </body>
 </html>
