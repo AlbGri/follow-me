@@ -16,16 +16,16 @@ const WRITTEN_DATE = /^(?:\p{L}+\.?,?\s+)?(\d{1,2})\s+(\p{L}+)\.?\s+(\d{4})\s*(?
 const SHARE_SEPARATOR = ' · ';
 
 /**
- * Testo da condividere (post, messaggi): niente simboli ne' coordinate, titoli in maiuscolo,
- * giorni vuoti omessi. Le date sono scritte per esteso con l'anno, cosi' si reimporta senza slittamenti.
+ * Testo da condividere (post, messaggi): niente simboli ne' coordinate, giorni vuoti omessi.
+ * Le date sono scritte per esteso con l'anno, cosi' si reimporta senza slittamenti.
  * @param {{untitled: string, dayName: (n: number) => string, dayDate: (dayIndex: number) => string}} names
  *   dayDate restituisce la data estesa con anno, o stringa vuota
  */
 export function tripToShareText(trip, { untitled, dayName, dayDate }) {
-  const lines = [(trip.title || untitled).toUpperCase()];
+  const lines = [trip.title || untitled];
   trip.days.forEach((day, dayIndex) => {
     if (day.stops.length === 0) return;
-    const heading = (dayDate(dayIndex) || dayName(dayIndex + 1)).toUpperCase();
+    const heading = capitalize(dayDate(dayIndex) || dayName(dayIndex + 1));
     lines.push('', day.label ? `${heading}${SHARE_SEPARATOR}${day.label}` : heading);
     day.stops.forEach((stop, index) => lines.push(`${index + 1}. ${[stop.time, stop.name].filter(Boolean).join(' ')}`));
   });
@@ -117,6 +117,10 @@ export function textToTrip(text) {
     }
   }
   return trip;
+}
+
+function capitalize(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 function parseDayHeader(text) {
