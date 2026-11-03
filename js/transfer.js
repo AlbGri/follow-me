@@ -53,6 +53,8 @@ export function openShareLink(url, title) {
  */
 export function openTextImport({ text = '', notice = '', onImport }) {
   let parsed = null;
+  // risultati gia' ottenuti per nome (anche "non trovato"): rianalizzando si cercano solo le righe nuove
+  const searched = new Map();
   const status = el('p', { className: 'status' });
   const review = el('div', { className: 'import-review' });
   const area = el('textarea', {
@@ -97,13 +99,19 @@ export function openTextImport({ text = '', notice = '', onImport }) {
     }
 
     const missing = stops.filter((stop) => stop.lat === null);
+    const toSearch = missing.filter((stop) => stop.name && !searched.has(stop.name));
     analyzeButton.disabled = true;
     try {
-      for (const [index, stop] of missing.entries()) {
-        status.textContent = t('import.geocoding', { name: stop.name, current: index + 1, total: missing.length });
+      for (const [index, stop] of toSearch.entries()) {
+        status.textContent = t('import.geocoding', { name: stop.name, current: index + 1, total: toSearch.length });
         // zona preferita: quella delle tappe gia' localizzate in questo testo
         const area = areaAround(stops);
-        const [place] = stop.name ? await searchPlaces(stop.name, getLanguage(), area) : [];
+        const [place] = await searchPlaces(stop.name, getLanguage(), area);
+        searched.set(stop.name, place ?? null);
+        if (place) Object.assign(stop, { lat: place.lat, lng: place.lng });
+      }
+      for (const stop of missing) {
+        const place = searched.get(stop.name);
         if (place) Object.assign(stop, { lat: place.lat, lng: place.lng, found: place.description });
       }
     } catch {
