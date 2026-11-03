@@ -34,6 +34,10 @@ durante l'import. Le parole ("Giorno", "Day") non contano, solo i simboli `#`, `
 
 Se il viaggio ha una data di inizio, i giorni si scrivono con la loro data: `## 2026-10-31 - La Valletta`.
 
+Per post e messaggi c'è anche il formato "da condividere", senza simboli né coordinate
+(`SAB 31 OTTOBRE 2026 · La Valletta` seguito dalle tappe numerate). Si reimporta anche questo:
+le tappe vengono cercate per nome.
+
 ## Avvio locale
 Serve un server statico qualsiasi (i moduli ES non funzionano da `file://`), ad esempio:
 

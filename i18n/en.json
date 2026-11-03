@@ -26,11 +26,10 @@
   "dialog.copied": "Copied.",
   "dialog.copyError": "Copy failed: select the text and copy it manually.",
   "export.title": "Export as text",
-  "export.help": "Paste it in a comment or save it as a file. Import it back with \"Import text\".",
   "export.chars": "{count} characters",
   "export.download": "Download .txt",
   "import.title": "Import from text",
-  "import.help": "Paste a trip (one \"## ...\" line per day, one numbered line per stop) or load a .txt file. Stops without coordinates are searched by name: add the city for better results.",
+  "import.help": "Paste a trip exported from Follow me (either format) or a hand-written list: one line per day followed by numbered stops. Stops without coordinates are searched by name: add the city for better results.",
   "import.placeholder": "# Malta\n\n## Day 1\n1. 09:00 Mdina\n2. Dingli Cliffs",
   "import.file": "Or load a file:",
   "import.analyze": "Analyze",
@@ -93,5 +92,9 @@
   "maps.route": "Route in Google Maps",
   "maps.routePart": "Google Maps, stops {from}-{to}",
   "trip.startDate": "Date of the first day (optional): the others follow in order",
-  "day.titlePlaceholder": "Day title"
+  "day.titlePlaceholder": "Day title",
+  "export.format.full": "To reimport",
+  "export.format.share": "To share",
+  "export.help.full": "With coordinates: imports back identical with \"Import text\". Good for backups and for whoever wants to repeat the trip.",
+  "export.help.share": "No symbols or coordinates, to paste in a post or a message. It can be imported too: stops are searched by name."
 }

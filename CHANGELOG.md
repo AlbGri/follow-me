@@ -1,6 +1,8 @@
 # Changelog
 
 ## 0.3.0 - 2026-11-04
+- Export testo in due formati: "per reimportare" (con coordinate) e "da condividere" (senza simboli né
+  coordinate, per post e messaggi); anche il secondo si reimporta, con le tappe cercate per nome
 - Data di inizio del viaggio: i giorni mostrano la propria data (es. "sab 31 ott"), anche nell'immagine e nel testo
 - Giorni riordinabili trascinando il pallino colorato
 - Link a Google Maps: luogo e indicazioni per ogni tappa, percorso del giorno (diviso in parti oltre 11 tappe)

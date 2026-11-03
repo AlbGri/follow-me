@@ -13,7 +13,7 @@ import {
 import { createMap, renderTrip, fitStops, flyTo, dayColor, getViewArea } from './map.js';
 import { searchPlaces, reversePlace, areaAround } from './geocode.js';
 import { el, byId, slugify, downloadBlob } from './dom.js';
-import { tripToText, stopToLine, stopsToText, linesToStops } from './textformat.js';
+import { tripToText, tripToShareText, stopToLine, stopsToText, linesToStops } from './textformat.js';
 import { openDialog, closeDialog, hint, actions, closeButton, copyText } from './dialog.js';
 import { openTextExport, openTextImport, openShareLink } from './transfer.js';
 import { createShareUrl, readSharedText } from './share.js';
@@ -625,6 +625,15 @@ function switchTrip(tripId) {
   fitStops(visibleStops());
 }
 
+function currentTripShareText() {
+  const trip = currentTrip();
+  return tripToShareText(trip, {
+    untitled: t('trip.untitled'),
+    dayName: (n) => t('day.default', { n }),
+    dayDate: (dayIndex) => formatDate(dayIsoDate(trip.startDate, dayIndex), getLanguage(), 'full'),
+  });
+}
+
 function currentTripText() {
   return tripToText(currentTrip(), { untitled: t('trip.untitled'), dayName: (n) => t('day.default', { n }) });
 }
@@ -771,7 +780,7 @@ elements.exportImage.addEventListener('click', openImageExport);
 window.addEventListener('hashchange', openSharedTrip);
 elements.importText.addEventListener('click', () => openTextImport({ onImport: importTrip }));
 elements.exportText.addEventListener('click', () => {
-  openTextExport(currentTripText(), `${slugify(currentTrip().title)}.txt`);
+  openTextExport({ full: currentTripText(), share: currentTripShareText() }, `${slugify(currentTrip().title)}.txt`);
 });
 elements.dayAdd.addEventListener('click', () => {
   const day = createDay();

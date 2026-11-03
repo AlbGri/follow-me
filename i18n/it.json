@@ -26,11 +26,10 @@
   "dialog.copied": "Copiato.",
   "dialog.copyError": "Copia non riuscita: seleziona il testo e copialo a mano.",
   "export.title": "Esporta come testo",
-  "export.help": "Incollalo in un commento o salvalo come file. Si reimporta con \"Importa testo\".",
   "export.chars": "{count} caratteri",
   "export.download": "Scarica .txt",
   "import.title": "Importa da testo",
-  "import.help": "Incolla un viaggio (una riga \"## ...\" per giorno, una riga numerata per tappa) o carica un file .txt. Le tappe senza coordinate vengono cercate per nome: aggiungi la città per risultati più precisi.",
+  "import.help": "Incolla un viaggio esportato da Follow me (in uno dei due formati) o un elenco scritto a mano: una riga per giorno seguita dalle tappe numerate. Le tappe senza coordinate vengono cercate per nome: aggiungi la città per risultati più precisi.",
   "import.placeholder": "# Malta\n\n## Giorno 1\n1. 09:00 Mdina\n2. Dingli Cliffs",
   "import.file": "Oppure carica un file:",
   "import.analyze": "Analizza",
@@ -93,5 +92,9 @@
   "maps.route": "Percorso in Google Maps",
   "maps.routePart": "Google Maps, tappe {from}-{to}",
   "trip.startDate": "Data del primo giorno (facoltativa): le altre seguono in ordine",
-  "day.titlePlaceholder": "Titolo del giorno"
+  "day.titlePlaceholder": "Titolo del giorno",
+  "export.format.full": "Per reimportare",
+  "export.format.share": "Da condividere",
+  "export.help.full": "Con coordinate: si reimporta identico con \"Importa testo\". Adatto a backup e a chi vuole rifare il viaggio.",
+  "export.help.share": "Senza simboli né coordinate, da incollare in un post o in un messaggio. Si può anche reimportare: le tappe vengono cercate per nome."
 }

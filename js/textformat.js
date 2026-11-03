@@ -1,5 +1,5 @@
 // Formato testo leggibile, vedi CLAUDE.md. Il parser riconosce i simboli, non le parole.
-import { parseDate, dayIsoDate, startDateFor } from './dates.js';
+import { parseDate, parseWrittenDate, dayIsoDate, startDateFor, daysBetween } from './dates.js';
 
 const TITLE = /^#(?!#)\s*(.+)$/;
 const DAY = /^##\s*(.*)$/;
@@ -7,10 +7,30 @@ const STOP = /^(?:\d+[.)]|[-*•])\s+(.+)$/;
 const LINE_PREFIX = /^(?:\d+[.)]|[-*•])\s*/;
 const TIME = /^(\d{1,2})[:.](\d{2})(?:\s+(.*))?$/;
 const COORDINATES = /\s*\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)$/;
-// "Giorno 2 - Gozo", "Day 2: Gozo", "2 - Gozo" -> "Gozo": parola + numero iniziali sono il nome di default
-const DAY_PREFIX = /^(?:\S+\s+)?\d+\s*(?:[-–:]\s*(.*))?$/;
+// "Giorno 2 - Gozo", "Day 2: Gozo", "2 · Gozo" -> "Gozo": parola + numero iniziali sono il nome di default
+const DAY_PREFIX = /^(?:\S+\s+)?\d+\s*(?:[-–:·]\s*(.*))?$/;
 // "2026-10-31 - Gozo", "31/10/2026: Gozo": la data al posto del nome di default
-const DAY_DATE = /^(\d{4}-\d{2}-\d{2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})\s*(?:[-–:,]\s*(.*))?$/;
+const DAY_DATE = /^(\d{4}-\d{2}-\d{2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})\s*(?:[-–:,·]\s*(.*))?$/;
+// "SAB 31 OTTOBRE 2026 · Gozo", "Sat 31 Oct 2026 - Gozo": data scritta del formato da condividere
+const WRITTEN_DATE = /^(?:\p{L}+\.?,?\s+)?(\d{1,2})\s+(\p{L}+)\.?\s+(\d{4})\s*(?:[-–:,·]\s*(.*))?$/u;
+const SHARE_SEPARATOR = ' · ';
+
+/**
+ * Testo da condividere (post, messaggi): niente simboli ne' coordinate, titoli in maiuscolo,
+ * giorni vuoti omessi. Le date sono scritte per esteso con l'anno, cosi' si reimporta senza slittamenti.
+ * @param {{untitled: string, dayName: (n: number) => string, dayDate: (dayIndex: number) => string}} names
+ *   dayDate restituisce la data estesa con anno, o stringa vuota
+ */
+export function tripToShareText(trip, { untitled, dayName, dayDate }) {
+  const lines = [(trip.title || untitled).toUpperCase()];
+  trip.days.forEach((day, dayIndex) => {
+    if (day.stops.length === 0) return;
+    const heading = (dayDate(dayIndex) || dayName(dayIndex + 1)).toUpperCase();
+    lines.push('', day.label ? `${heading}${SHARE_SEPARATOR}${day.label}` : heading);
+    day.stops.forEach((stop, index) => lines.push(`${index + 1}. ${[stop.time, stop.name].filter(Boolean).join(' ')}`));
+  });
+  return `${lines.join('\n')}\n`;
+}
 
 /**
  * Converte un viaggio in testo. Con la data di inizio i giorni si chiamano con la loro data ISO,
@@ -53,28 +73,47 @@ export function linesToStops(text) {
 }
 
 /**
- * Legge un viaggio dal testo. Le righe non riconosciute vengono ignorate.
- * Le tappe senza coordinate hanno lat/lng null.
- * La data di inizio viene dal primo giorno con una data; le date successive seguono la posizione.
+ * Legge un viaggio dal testo, in entrambi i formati (con simboli o da condividere).
+ * Senza simboli: una riga libera seguita da tappe e' un giorno, la prima riga libera del testo il titolo;
+ * le altre righe libere vengono ignorate. Le tappe senza coordinate hanno lat/lng null.
+ * La data di inizio viene dal primo giorno con una data; un giorno datato piu' avanti della sua
+ * posizione riceve prima i giorni vuoti mancanti (il formato da condividere li omette).
  * @returns {{title: string, startDate: string,
  *   days: {label: string, stops: {name: string, time: string, lat: ?number, lng: ?number}[]}[]}}
  */
 export function textToTrip(text) {
   const trip = { title: '', startDate: '', days: [] };
+  let freeLine = '';
+
+  const addDay = (header) => {
+    const { label, date } = parseDayHeader(header);
+    if (date && !trip.startDate) trip.startDate = startDateFor(date, trip.days.length);
+    if (date) {
+      while (trip.days.length < daysBetween(trip.startDate, date)) trip.days.push({ label: '', stops: [] });
+    }
+    trip.days.push({ label, stops: [] });
+  };
+
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.trim();
+    if (!line) continue;
     const day = line.match(DAY);
     const title = line.match(TITLE);
     const stop = line.match(STOP);
     if (day) {
-      const { label, date } = parseDayHeader(day[1].trim());
-      if (date && !trip.startDate) trip.startDate = startDateFor(date, trip.days.length);
-      trip.days.push({ label, stops: [] });
+      addDay(day[1].trim());
+      freeLine = '';
     } else if (title) {
       trip.title ||= title[1].trim();
+      freeLine = '';
     } else if (stop) {
-      if (trip.days.length === 0) trip.days.push({ label: '', stops: [] });
+      if (freeLine) addDay(freeLine);
+      else if (trip.days.length === 0) trip.days.push({ label: '', stops: [] });
+      freeLine = '';
       trip.days.at(-1).stops.push(parseStop(stop[1]));
+    } else {
+      if (freeLine && !trip.title && trip.days.length === 0) trip.title = freeLine;
+      freeLine = line;
     }
   }
   return trip;
@@ -84,6 +123,9 @@ function parseDayHeader(text) {
   const dated = text.match(DAY_DATE);
   const date = dated ? parseDate(dated[1]) : '';
   if (date) return { label: (dated[2] ?? '').trim(), date };
+  const written = text.match(WRITTEN_DATE);
+  const writtenDate = written ? parseWrittenDate(written[1], written[2], written[3]) : '';
+  if (writtenDate) return { label: (written[4] ?? '').trim(), date: writtenDate };
   const prefix = text.match(DAY_PREFIX);
   return { label: prefix ? (prefix[1] ?? '').trim() : text, date: '' };
 }

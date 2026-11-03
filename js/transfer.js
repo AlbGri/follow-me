@@ -10,25 +10,57 @@ function copyButton(text, status) {
   return el('button', { type: 'button', className: 'primary', textContent: t('dialog.copy'), onclick: () => copyText(text, status) });
 }
 
-/** Mostra il viaggio come testo, da copiare o scaricare come .txt. */
-export function openTextExport(text, filename) {
+const EXPORT_FORMAT_KEY = 'followme.exportFormat';
+
+/**
+ * Mostra il viaggio come testo, da copiare o scaricare come .txt, nei due formati:
+ * full (con simboli e coordinate, per reimportare) e share (da leggere, per post e messaggi).
+ * L'ultimo formato scelto viene ricordato.
+ * @param {{full: string, share: string}} texts
+ */
+export function openTextExport(texts, filename) {
+  let format = localStorage.getItem(EXPORT_FORMAT_KEY) === 'share' ? 'share' : 'full';
   const status = el('p', { className: 'status' });
+  const help = hint('');
+  const area = el('textarea', { className: 'dialog-text', readOnly: true, rows: 12 });
+  const count = hint('');
+  const formatButtons = ['full', 'share'].map((key) =>
+    el('button', { type: 'button', textContent: t(`export.format.${key}`), onclick: () => show(key) }),
+  );
+
+  function show(key) {
+    format = key;
+    localStorage.setItem(EXPORT_FORMAT_KEY, key);
+    formatButtons.forEach((button, index) => button.classList.toggle('active', ['full', 'share'][index] === key));
+    help.textContent = t(`export.help.${key}`);
+    area.value = texts[key];
+    count.textContent = t('export.chars', { count: texts[key].length });
+    status.textContent = '';
+  }
+
   openDialog(
     t('export.title'),
-    hint(t('export.help')),
-    el('textarea', { className: 'dialog-text', value: text, readOnly: true, rows: 12 }),
-    hint(t('export.chars', { count: text.length })),
+    el('div', { className: 'segmented' }, ...formatButtons),
+    help,
+    area,
+    count,
     status,
     actions(
-      copyButton(text, status),
+      el('button', {
+        type: 'button',
+        className: 'primary',
+        textContent: t('dialog.copy'),
+        onclick: () => copyText(texts[format], status),
+      }),
       el('button', {
         type: 'button',
         textContent: t('export.download'),
-        onclick: () => downloadBlob(new Blob([text], { type: 'text/plain;charset=utf-8' }), filename),
+        onclick: () => downloadBlob(new Blob([texts[format]], { type: 'text/plain;charset=utf-8' }), filename),
       }),
       closeButton(),
     ),
   );
+  show(format);
 }
 
 /** Mostra il link di condivisione, con condivisione nativa dove disponibile (mobile). */

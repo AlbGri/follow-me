@@ -36,14 +36,45 @@ export function startDateFor(isoDate, dayIndex) {
   return dayIsoDate(isoDate, -dayIndex);
 }
 
-/** "ven 31 ott" (short) o "ven 31 ottobre" (long) nella lingua dell'interfaccia. */
+const STYLES = {
+  short: { month: 'short' },
+  long: { month: 'long' },
+  full: { month: 'long', year: 'numeric' },
+};
+
+/** "sab 31 ott" (short), "sab 31 ottobre" (long) o "sab 31 ottobre 2026" (full) nella lingua dell'interfaccia. */
 export function formatDate(isoDate, language, style = 'short') {
   if (!isoDate) return '';
   const format = new Intl.DateTimeFormat(LOCALES[language] ?? language, {
     weekday: 'short',
     day: 'numeric',
-    month: style,
     timeZone: 'UTC',
+    ...STYLES[style],
   });
   return format.format(new Date(`${isoDate}T00:00:00Z`)).replace(',', '');
+}
+
+const normalizeMonth = (name) => name.toLowerCase().replace(/\./g, '');
+
+// Nomi dei mesi (completi e abbreviati) in tutte le lingue dell'interfaccia, per leggere "31 ottobre 2026"
+const MONTHS = new Map();
+for (const locale of Object.values(LOCALES)) {
+  for (const month of ['long', 'short']) {
+    const format = new Intl.DateTimeFormat(locale, { month, timeZone: 'UTC' });
+    for (let index = 1; index <= 12; index++) {
+      MONTHS.set(normalizeMonth(format.format(new Date(Date.UTC(2026, index - 1, 1)))), index);
+    }
+  }
+}
+
+/** Data ISO da giorno, nome del mese e anno ("31", "ottobre", "2026"), o stringa vuota. */
+export function parseWrittenDate(day, monthName, year) {
+  const month = MONTHS.get(normalizeMonth(monthName));
+  if (!month) return '';
+  return parseDate(`${year}-${String(month).padStart(2, '0')}-${day.padStart(2, '0')}`);
+}
+
+/** Giorni tra due date ISO. */
+export function daysBetween(fromIso, toIso) {
+  return Math.round((Date.parse(`${toIso}T00:00:00Z`) - Date.parse(`${fromIso}T00:00:00Z`)) / 86400000);
 }
