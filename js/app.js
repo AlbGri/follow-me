@@ -144,7 +144,11 @@ function visibleStops() {
 
 function renderTripBar() {
   const trip = currentTrip();
-  elements.languageToggle.textContent = t('language.switch');
+  const nextLanguage = getLanguage() === 'it' ? 'en' : 'it';
+  elements.languageToggle.textContent = nextLanguage.toUpperCase();
+  elements.languageToggle.dataset.flag = nextLanguage;
+  elements.languageToggle.title = t('language.switch');
+  elements.languageToggle.setAttribute('aria-label', t('language.switch'));
   elements.tripSelect.replaceChildren(
     ...state.trips.map((item) =>
       el('option', { value: item.id, textContent: tripLabel(item), selected: item.id === trip.id }),
@@ -664,19 +668,20 @@ async function checkStorage() {
   const installed = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
   const persisted = await navigator.storage?.persisted?.().catch(() => false);
   if (installed || persisted) return;
-  elements.storageNotice.replaceChildren(
-    el('span', { textContent: t('storage.notice') }),
-    el('button', {
-      type: 'button',
-      textContent: t('storage.dismiss'),
-      onclick: () => {
-        // la richiesta parte da un click: su Firefox mostra un permesso, non va fatta all'avvio
-        navigator.storage?.persist?.().catch(() => {});
-        localStorage.setItem(STORAGE_NOTICE_KEY, '1');
-        elements.storageNotice.hidden = true;
-      },
-    }),
-  );
+  const text = el('span', { textContent: t('storage.notice') });
+  text.dataset.i18n = 'storage.notice';
+  const dismiss = el('button', {
+    type: 'button',
+    textContent: t('storage.dismiss'),
+    onclick: () => {
+      // la richiesta parte da un click: su Firefox mostra un permesso, non va fatta all'avvio
+      navigator.storage?.persist?.().catch(() => {});
+      localStorage.setItem(STORAGE_NOTICE_KEY, '1');
+      elements.storageNotice.hidden = true;
+    },
+  });
+  dismiss.dataset.i18n = 'storage.dismiss';
+  elements.storageNotice.replaceChildren(text, dismiss);
   elements.storageNotice.hidden = false;
 }
 

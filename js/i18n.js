@@ -4,9 +4,8 @@ let language = 'it';
 let strings = {};
 
 export async function initI18n() {
-  const saved = localStorage.getItem(STORAGE_KEY);
-  const browserDefault = navigator.language.startsWith('it') ? 'it' : 'en';
-  await setLanguage(saved || browserDefault);
+  // italiano di default, la lingua del browser non conta: l'inglese si sceglie col pulsante
+  await setLanguage(localStorage.getItem(STORAGE_KEY) || 'it');
 }
 
 /** Carica la lingua e aggiorna i testi statici marcati con data-i18n*. */
