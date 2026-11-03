@@ -12,6 +12,7 @@
   "search.noResults": "Nessun risultato.",
   "hint.click": "Clicca sulla mappa o cerca un luogo per aggiungere una tappa al giorno selezionato.",
   "day.default": "Giorno {n}",
+  "day.all": "Tutti",
   "day.add": "+ Aggiungi giorno",
   "day.delete": "Elimina giorno",
   "day.deleteConfirm": "Eliminare il giorno e le sue {count} tappe?",

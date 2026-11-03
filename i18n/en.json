@@ -12,6 +12,7 @@
   "search.noResults": "No results.",
   "hint.click": "Click on the map or search a place to add a stop to the selected day.",
   "day.default": "Day {n}",
+  "day.all": "All",
   "day.add": "+ Add day",
   "day.delete": "Delete day",
   "day.deleteConfirm": "Delete the day and its {count} stops?",

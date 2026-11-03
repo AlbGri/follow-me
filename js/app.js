@@ -1,10 +1,12 @@
 import { initI18n, setLanguage, getLanguage, t } from './i18n.js';
 import { loadState, saveState, createTrip, createDay, createStop, roundCoordinate } from './store.js';
-import { createMap, renderStops, fitTrip, flyTo, dayColor } from './map.js';
+import { createMap, renderTrip, fitStops, flyTo, dayColor } from './map.js';
 import { searchPlaces, reversePlace } from './geocode.js';
 
 const state = loadState();
 let activeDayId = currentTrip().days[0]?.id ?? null;
+// giorno mostrato sulla mappa, null = tutti
+let visibleDayId = null;
 
 const byId = (id) => document.getElementById(id);
 const elements = {
@@ -19,6 +21,7 @@ const elements = {
   status: byId('status'),
   days: byId('days'),
   dayAdd: byId('day-add'),
+  dayFilter: byId('day-filter'),
 };
 
 function el(tag, props = {}, ...children) {
@@ -63,7 +66,48 @@ function refresh() {
   save();
   renderTripBar();
   renderDays();
-  renderStops(currentTrip(), { onMove: moveStopPosition, onSelect: focusStop });
+  renderMap();
+}
+
+function renderMap() {
+  const trip = currentTrip();
+  // con un filtro attivo si vede sempre il giorno selezionato, dove finiscono le nuove tappe
+  if (visibleDayId && visibleDayId !== activeDayId) visibleDayId = activeDayId;
+  if (!trip.days.some((day) => day.id === visibleDayId)) visibleDayId = null;
+  renderDayFilter(trip);
+  renderTrip(trip, visibleDayId, { onMove: moveStopPosition, onSelect: focusStop });
+}
+
+function renderDayFilter(trip) {
+  const chip = (label, dayId, color) => {
+    const button = el('button', {
+      type: 'button',
+      className: 'chip',
+      textContent: label,
+      onclick: () => showDay(dayId),
+    });
+    button.classList.toggle('active', dayId === visibleDayId);
+    if (color) button.style.setProperty('--day-color', color);
+    return button;
+  };
+  elements.dayFilter.replaceChildren(
+    chip(t('day.all'), null),
+    ...trip.days.map((day, dayIndex) => chip(dayLabel(day, dayIndex), day.id, dayColor(dayIndex))),
+  );
+}
+
+/** Mostra sulla mappa un solo giorno (dayId) o tutti (null) e lo inquadra. */
+function showDay(dayId) {
+  visibleDayId = dayId;
+  if (dayId) setActiveDay(dayId);
+  renderMap();
+  fitStops(visibleStops());
+}
+
+function visibleStops() {
+  return currentTrip()
+    .days.filter((day) => !visibleDayId || day.id === visibleDayId)
+    .flatMap((day) => day.stops);
 }
 
 function renderTripBar() {
@@ -180,6 +224,7 @@ function setActiveDay(dayId) {
   elements.days.querySelectorAll('.day').forEach((card) => {
     card.classList.toggle('active', card.dataset.dayId === dayId);
   });
+  if (visibleDayId && visibleDayId !== dayId) renderMap();
 }
 
 function focusStop(stopId) {
@@ -227,7 +272,7 @@ function moveStopPosition(stopId, lat, lng) {
   if (!found) return;
   found.stop.lat = roundCoordinate(lat);
   found.stop.lng = roundCoordinate(lng);
-  save();
+  refresh();
 }
 
 function shiftStop(stopId, offset) {
@@ -261,8 +306,9 @@ function deleteDay(day) {
 function switchTrip(tripId) {
   state.currentId = tripId;
   activeDayId = currentTrip().days[0]?.id ?? null;
+  visibleDayId = null;
   refresh();
-  fitTrip(currentTrip());
+  fitStops(visibleStops());
 }
 
 async function onSearch(event) {
@@ -338,4 +384,4 @@ elements.dayAdd.addEventListener('click', () => {
 });
 
 refresh();
-fitTrip(currentTrip());
+fitStops(visibleStops());
