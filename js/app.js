@@ -448,3 +448,5 @@ elements.dayAdd.addEventListener('click', () => {
 refresh();
 fitStops(visibleStops());
 openSharedTrip();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');

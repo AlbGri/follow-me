@@ -3,13 +3,30 @@
 Web app per disegnare su mappa i giri di un viaggio: tappe divise per giorno, in ordine,
 da condividere come testo, link o immagine.
 
-Stato: in sviluppo (MVP).
-
 ## Funzioni
-- Più viaggi salvati nel browser
+- Più viaggi salvati nel browser, nessun account
 - Tappe aggiunte cliccando sulla mappa o cercando un luogo per nome
 - Tappe divise per giorno, riordinabili, con orario opzionale
+- Percorso disegnato con linee colorate per giorno, filtro per giorno
+- Export e import in formato testo, leggibile e incollabile in un commento
+- Link di condivisione che contiene l'intero viaggio
+- Export PNG con titolo e legenda
+- Installabile come app (PWA), utilizzabile offline (mappa esclusa)
 - Interfaccia in italiano e inglese
+
+## Formato testo
+```
+# Malta 2026
+
+## Giorno 1 - La Valletta
+1. 09:00 Upper Barrakka Gardens (35.8946, 14.5124)
+2. Fort St Elmo (35.902, 14.519)
+
+## Giorno 2 - Gozo
+1. Cittadella, Victoria, Gozo
+```
+Orario e coordinate sono opzionali: le tappe senza coordinate vengono cercate per nome
+durante l'import. Le parole ("Giorno", "Day") non contano, solo i simboli `#`, `##` e i numeri.
 
 ## Avvio locale
 Serve un server statico qualsiasi (i moduli ES non funzionano da `file://`), ad esempio:
