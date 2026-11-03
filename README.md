@@ -1,4 +1,4 @@
-# Follow me
+# Follow Me
 
 Web app per disegnare su mappa i giri di un viaggio: tappe divise per giorno, in ordine,
 da condividere come testo, link o immagine.

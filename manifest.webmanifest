@@ -1,6 +1,6 @@
 {
-  "name": "Follow me",
-  "short_name": "Follow me",
+  "name": "Follow Me",
+  "short_name": "Follow Me",
   "description": "Map your trip day by day and share the route as text, link or image.",
   "start_url": "./",
   "scope": "./",
