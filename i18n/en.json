@@ -9,7 +9,7 @@
   "search.button": "Search",
   "search.searching": "Searching...",
   "search.noResults": "No results.",
-  "hint.click": "Click on the map or search a place to add a stop to the selected day. Drag the number to reorder.",
+  "hint.click": "Click on the map or search a place to add a stop to the selected day. Drag the number to reorder stops, the colored dot to reorder days.",
   "day.default": "Day {n}",
   "day.all": "All",
   "day.add": "+ Add day",
@@ -86,5 +86,10 @@
   "install.steps.ios": "Tap the Share button (the square with an up arrow).\nScroll and tap \"Add to Home Screen\".\nConfirm with \"Add\".",
   "install.steps.android": "Tap the ⋮ menu at the top right.\nTap \"Install app\" or \"Add to Home screen\".\nConfirm.",
   "install.steps.desktop": "Chrome or Edge: click the install icon on the right of the address bar, or choose \"Install\" from the menu.\nSafari on Mac: File menu > \"Add to Dock\".\nFirefox does not install web apps: you can bookmark the page.",
-  "install.iosNote": "Since iOS 16.4 it also works from Chrome and Edge, via their Share menu; before only from Safari."
+  "install.iosNote": "Since iOS 16.4 it also works from Chrome and Edge, via their Share menu; before only from Safari.",
+  "day.drag": "Drag to move the day",
+  "maps.open": "Open in Google Maps",
+  "maps.directions": "Directions to here",
+  "maps.route": "Route in Google Maps",
+  "maps.routePart": "Google Maps, stops {from}-{to}"
 }

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.0 - 2026-11-04
+- Giorni riordinabili trascinando il pallino colorato
+- Link a Google Maps: luogo e indicazioni per ogni tappa, percorso del giorno (diviso in parti oltre 11 tappe)
+- Nome della tappa sulla mappa toccando il marker; la tappa viene evidenziata nella lista senza aprire la tastiera
+- Pulsante "Dove sono" sulla mappa
+- Pulsante "Salva app" per installare l'app, con istruzioni per iPhone, Android e computer
+- Italiano come lingua predefinita, pulsante lingua con bandiera
+
 ## 0.2.0 - 2026-11-04
 - Lista tappe compatta: riordino trascinando il numero, anche tra giorni diversi
 - Menu per tappa: copia come testo, duplica o sposta in un altro giorno, elimina

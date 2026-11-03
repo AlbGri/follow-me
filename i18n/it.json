@@ -9,7 +9,7 @@
   "search.button": "Cerca",
   "search.searching": "Ricerca in corso...",
   "search.noResults": "Nessun risultato.",
-  "hint.click": "Clicca sulla mappa o cerca un luogo per aggiungere una tappa al giorno selezionato. Trascina il numero per riordinare.",
+  "hint.click": "Clicca sulla mappa o cerca un luogo per aggiungere una tappa al giorno selezionato. Trascina il numero per riordinare le tappe, il pallino colorato per i giorni.",
   "day.default": "Giorno {n}",
   "day.all": "Tutti",
   "day.add": "+ Aggiungi giorno",
@@ -86,5 +86,10 @@
   "install.steps.ios": "Tocca il pulsante Condividi (il quadrato con la freccia in su).\nScorri e tocca \"Aggiungi alla schermata Home\".\nConferma con \"Aggiungi\".",
   "install.steps.android": "Tocca il menu ⋮ in alto a destra.\nTocca \"Installa app\" o \"Aggiungi a schermata Home\".\nConferma.",
   "install.steps.desktop": "Chrome o Edge: clicca l'icona di installazione a destra nella barra degli indirizzi, oppure scegli \"Installa\" dal menu.\nSafari su Mac: menu File > \"Aggiungi al Dock\".\nFirefox non installa app web: puoi aggiungere la pagina ai preferiti.",
-  "install.iosNote": "Da iOS 16.4 funziona anche da Chrome ed Edge, dal loro menu Condividi; prima solo da Safari."
+  "install.iosNote": "Da iOS 16.4 funziona anche da Chrome ed Edge, dal loro menu Condividi; prima solo da Safari.",
+  "day.drag": "Trascina per spostare il giorno",
+  "maps.open": "Apri in Google Maps",
+  "maps.directions": "Indicazioni per arrivarci",
+  "maps.route": "Percorso in Google Maps",
+  "maps.routePart": "Google Maps, tappe {from}-{to}"
 }

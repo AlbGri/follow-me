@@ -347,11 +347,42 @@ button.primary {
 }
 
 .day-dot {
-  width: 12px;
-  height: 12px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: var(--day-color);
   flex-shrink: 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.route-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin-top: 8px;
+  font-size: 0.85rem;
+}
+
+.route-links a,
+a.menu-item {
+  color: var(--accent);
+}
+
+a.menu-item {
+  display: block;
+  padding: 6px 0;
+  text-decoration: none;
+}
+
+.stop.highlight {
+  animation: highlight 1.6s ease-out;
+}
+
+@keyframes highlight {
+  from {
+    background: color-mix(in srgb, var(--day-color) 30%, transparent);
+  }
 }
 
 .day-label {

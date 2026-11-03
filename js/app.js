@@ -19,6 +19,7 @@ import { openTextExport, openTextImport, openShareLink } from './transfer.js';
 import { createShareUrl, readSharedText } from './share.js';
 import { renderTripImage } from './export-image.js';
 import { setupInstallButton, isInstalled } from './install.js';
+import { placeUrl, directionsUrl, routeUrls } from './gmaps.js';
 
 const STORAGE_NOTICE_KEY = 'followme.storageNoticeDismissed';
 const TOAST_DURATION_MS = 6000;
@@ -193,7 +194,7 @@ function renderDay(day, dayIndex) {
       'header',
       { className: 'day-header' },
       iconButton(collapsed ? '▸' : '▾', t(collapsed ? 'day.expand' : 'day.collapse'), () => toggleCollapsed(day.id)),
-      el('span', { className: 'day-dot' }),
+      el('span', { className: 'day-dot', title: t('day.drag') }),
       labelInput,
       el('span', { className: 'day-count', textContent: t('day.count', { count: day.stops.length }) }),
       iconButton('✎', t('day.editText'), () => startTextEdit(day)),
@@ -201,7 +202,7 @@ function renderDay(day, dayIndex) {
     ),
   );
   if (editing) card.append(renderTextEditor());
-  else if (!collapsed) card.append(renderStopList(day));
+  else if (!collapsed) card.append(renderStopList(day), ...renderRouteLinks(day));
   return card;
 }
 
@@ -217,6 +218,19 @@ function renderStopList(day) {
     onEnd: ({ from, to, oldIndex, newIndex }) => moveStop(from.dataset.dayId, oldIndex, to.dataset.dayId, newIndex),
   });
   return list;
+}
+
+function renderRouteLinks(day) {
+  if (day.stops.length < 2) return [];
+  const routes = routeUrls(day.stops);
+  const link = ({ from, to, url }) =>
+    el('a', {
+      href: url,
+      target: '_blank',
+      rel: 'noopener',
+      textContent: routes.length > 1 ? t('maps.routePart', { from, to }) : t('maps.route'),
+    });
+  return [el('div', { className: 'route-links' }, ...routes.map(link))];
 }
 
 function renderStop(stop, index) {
@@ -293,8 +307,11 @@ function focusStop(stopId) {
   setActiveDay(found.day.id);
   const item = elements.days.querySelector(`[data-stop-id="${stopId}"]`);
   if (!item) return;
-  item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  item.querySelector('.stop-name').focus({ preventScroll: true });
+  // evidenzia senza mettere il cursore nel nome: su mobile aprirebbe la tastiera
+  item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  item.classList.remove('highlight');
+  void item.offsetWidth;
+  item.classList.add('highlight');
 }
 
 function showToast(message, onUndo) {
@@ -410,6 +427,14 @@ function deleteTrip() {
   fitStops(visibleStops());
 }
 
+function moveDay(oldIndex, newIndex) {
+  if (oldIndex === newIndex) return;
+  const days = currentTrip().days;
+  const [day] = days.splice(oldIndex, 1);
+  days.splice(newIndex, 0, day);
+  refresh();
+}
+
 function toggleCollapsed(dayId) {
   if (!collapsedDayIds.delete(dayId)) collapsedDayIds.add(dayId);
   saveCollapsedDays(collapsedDayIds);
@@ -460,6 +485,8 @@ function openStopMenu(stopId) {
       onclick: () => copyText(stopToLine(stop), status, t('stop.copied')),
     }),
     status,
+    el('a', { className: 'menu-item', href: placeUrl(stop), target: '_blank', rel: 'noopener', textContent: t('maps.open') }),
+    el('a', { className: 'menu-item', href: directionsUrl(stop), target: '_blank', rel: 'noopener', textContent: t('maps.directions') }),
     el('h3', { textContent: t('stop.duplicateTo') }),
     dayChoices((dayId) => duplicateStop(stopId, dayId)),
     ...moveSection,
@@ -710,6 +737,13 @@ elements.tripTitle.addEventListener('input', () => {
 });
 elements.searchForm.addEventListener('submit', onSearch);
 elements.collapseAll.addEventListener('click', toggleCollapseAll);
+// giorni riordinabili trascinando il pallino colorato; le tappe hanno un gruppo a parte
+Sortable.create(elements.days, {
+  handle: '.day-dot',
+  draggable: '.day',
+  animation: 150,
+  onEnd: ({ oldIndex, newIndex }) => moveDay(oldIndex, newIndex),
+});
 elements.shareLink.addEventListener('click', async () => {
   openShareLink(await createShareUrl(currentTripText()), tripLabel(currentTrip()));
 });

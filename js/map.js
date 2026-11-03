@@ -8,6 +8,7 @@ const MIN_ZOOM_FOR_SEARCH_AREA = 6;
 
 let map;
 let markers = [];
+let popup = null;
 let routeData = featureCollection([]);
 
 export function dayColor(dayIndex) {
@@ -61,11 +62,36 @@ function fit(target, stops, padding) {
 export function createMap(container, onMapClick) {
   map = new maplibregl.Map({ container, style: STYLE_URL, center: [10, 30], zoom: 1.5 });
   map.addControl(new maplibregl.NavigationControl(), 'top-right');
+  // il permesso di posizione viene chiesto solo premendo il pulsante
+  map.addControl(
+    new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: true }),
+    'top-right',
+  );
   map.on('click', (event) => {
     if (event.originalEvent.target !== map.getCanvas()) return;
+    // il click che chiude il nome di una tappa non deve aggiungerne una nuova
+    if (popup) {
+      closePopup();
+      return;
+    }
     onMapClick(event.lngLat.lat, event.lngLat.lng);
   });
   map.on('load', () => addRouteLayers(map, routeData));
+}
+
+function showPopup(marker, text) {
+  closePopup();
+  const content = document.createElement('strong');
+  content.textContent = text;
+  popup = new maplibregl.Popup({ offset: 16, closeButton: false, closeOnClick: false })
+    .setLngLat(marker.getLngLat())
+    .setDOMContent(content)
+    .addTo(map);
+}
+
+function closePopup() {
+  popup?.remove();
+  popup = null;
 }
 
 /**
@@ -76,6 +102,7 @@ export function createMap(container, onMapClick) {
 export function renderTrip(trip, visibleDayId, { onMove, onSelect }) {
   markers.forEach((marker) => marker.remove());
   markers = [];
+  closePopup();
   const days = trip.days
     .map((day, dayIndex) => ({ ...day, color: dayColor(dayIndex) }))
     .filter((day) => !visibleDayId || day.id === visibleDayId);
@@ -86,11 +113,16 @@ export function renderTrip(trip, visibleDayId, { onMove, onSelect }) {
       element.className = 'marker';
       element.style.background = day.color;
       element.textContent = String(stopIndex + 1);
-      element.addEventListener('click', () => onSelect(stop.id));
+      const label = [`${stopIndex + 1}.`, stop.time, stop.name].filter(Boolean).join(' ');
+      element.title = label;
 
       const marker = new maplibregl.Marker({ element, draggable: true })
         .setLngLat([stop.lng, stop.lat])
         .addTo(map);
+      element.addEventListener('click', () => {
+        showPopup(marker, label);
+        onSelect(stop.id);
+      });
       marker.on('dragend', () => {
         const { lat, lng } = marker.getLngLat();
         onMove(stop.id, lat, lng);

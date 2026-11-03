@@ -2,7 +2,7 @@
 // File dell'app: prima la rete (gli aggiornamenti arrivano subito), cache se offline.
 // Librerie da CDN (MapLibre, SortableJS): versione fissata, quindi cache-first.
 // Tile e Nominatim non vengono mai messi in cache (policy dei servizi).
-const CACHE_NAME = 'follow-me-v3';
+const CACHE_NAME = 'follow-me-v4';
 const APP_FILES = [
   './',
   'index.html',
@@ -13,6 +13,7 @@ const APP_FILES = [
   'js/dom.js',
   'js/export-image.js',
   'js/geocode.js',
+  'js/gmaps.js',
   'js/i18n.js',
   'js/install.js',
   'js/map.js',

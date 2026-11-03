@@ -9,11 +9,13 @@ da condividere come testo, link o immagine.
 - Tappe divise per giorno con orario opzionale, riordinabili trascinandole anche tra giorni
 - Giorni comprimibili e modificabili come testo
 - Copia, duplicazione e spostamento di tappe, con "Annulla" per le eliminazioni
-- Percorso disegnato con linee colorate per giorno, filtro per giorno
+- Percorso disegnato con linee colorate per giorno, filtro per giorno, giorni riordinabili
+- Link a Google Maps per ogni tappa e per il percorso di ogni giorno
+- Posizione attuale sulla mappa
 - Export e import in formato testo, leggibile e incollabile in un commento
 - Link di condivisione che contiene l'intero viaggio
 - Immagine quadrata o verticale con mappa ed elenco delle tappe
-- Installabile come app (PWA), utilizzabile offline (mappa esclusa)
+- Installabile come app (PWA) con il pulsante "Salva app", utilizzabile offline (mappa esclusa)
 - Interfaccia in italiano e inglese
 
 ## Formato testo
