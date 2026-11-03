@@ -147,6 +147,92 @@ select {
   font-weight: 600;
 }
 
+.toolbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.dialog {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  color: var(--text);
+}
+
+.dialog::backdrop {
+  background: rgba(20, 24, 33, 0.45);
+}
+
+.dialog h2 {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+}
+
+.dialog > * + * {
+  margin-top: 10px;
+}
+
+.dialog-text {
+  width: 100%;
+  font: 0.85rem/1.4 ui-monospace, Consolas, monospace;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  resize: vertical;
+}
+
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.file-label {
+  display: block;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.notice {
+  margin: 0;
+  padding: 8px;
+  border-radius: 6px;
+  background: var(--surface);
+}
+
+.import-review h3 {
+  margin: 8px 0 4px;
+  font-size: 0.95rem;
+}
+
+.import-review ol {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.import-review li small {
+  display: block;
+  color: var(--muted);
+}
+
+.import-review li.missing {
+  color: var(--danger);
+}
+
+.import-review li.missing small {
+  color: var(--danger);
+}
+
 .search {
   display: flex;
   gap: 6px;

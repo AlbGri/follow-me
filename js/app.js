@@ -2,13 +2,15 @@ import { initI18n, setLanguage, getLanguage, t } from './i18n.js';
 import { loadState, saveState, createTrip, createDay, createStop, roundCoordinate } from './store.js';
 import { createMap, renderTrip, fitStops, flyTo, dayColor } from './map.js';
 import { searchPlaces, reversePlace } from './geocode.js';
+import { el, byId, slugify } from './dom.js';
+import { tripToText } from './textformat.js';
+import { openTextExport, openTextImport } from './transfer.js';
 
 const state = loadState();
 let activeDayId = currentTrip().days[0]?.id ?? null;
 // giorno mostrato sulla mappa, null = tutti
 let visibleDayId = null;
 
-const byId = (id) => document.getElementById(id);
 const elements = {
   languageToggle: byId('language-toggle'),
   tripSelect: byId('trip-select'),
@@ -22,14 +24,9 @@ const elements = {
   days: byId('days'),
   dayAdd: byId('day-add'),
   dayFilter: byId('day-filter'),
+  importText: byId('import-text'),
+  exportText: byId('export-text'),
 };
-
-function el(tag, props = {}, ...children) {
-  const node = document.createElement(tag);
-  Object.assign(node, props);
-  node.append(...children);
-  return node;
-}
 
 function currentTrip() {
   return state.trips.find((trip) => trip.id === state.currentId);
@@ -339,6 +336,26 @@ async function onSearch(event) {
   }
 }
 
+function currentTripText() {
+  return tripToText(currentTrip(), { untitled: t('trip.untitled'), dayName: (n) => t('day.default', { n }) });
+}
+
+/** Crea un nuovo viaggio da quello letto dal testo, saltando le tappe senza coordinate. */
+function importTrip(parsed) {
+  const trip = createTrip();
+  trip.title = parsed.title;
+  const days = parsed.days.map((parsedDay) => ({
+    ...createDay(),
+    label: parsedDay.label,
+    stops: parsedDay.stops
+      .filter((stop) => stop.lat !== null)
+      .map((stop) => ({ ...createStop(stop.name, stop.lat, stop.lng), time: stop.time })),
+  }));
+  if (days.length) trip.days = days;
+  state.trips.push(trip);
+  switchTrip(trip.id);
+}
+
 function pickPlace(place) {
   addStop(place.lat, place.lng, place.name);
   elements.searchResults.replaceChildren();
@@ -376,6 +393,10 @@ elements.tripTitle.addEventListener('input', () => {
   elements.tripSelect.selectedOptions[0].textContent = tripLabel(trip);
 });
 elements.searchForm.addEventListener('submit', onSearch);
+elements.importText.addEventListener('click', () => openTextImport({ onImport: importTrip }));
+elements.exportText.addEventListener('click', () => {
+  openTextExport(currentTripText(), `${slugify(currentTrip().title)}.txt`);
+});
 elements.dayAdd.addEventListener('click', () => {
   const day = createDay();
   currentTrip().days.push(day);
