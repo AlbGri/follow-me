@@ -4,6 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Follow Me</title>
+  <script>
+    // l'indirizzo dell'app e' fm.albgri.com: chi arriva dal vecchio indirizzo GitHub viene rimandato li'
+    if (location.hostname === 'albgri.github.io') location.replace('https://fm.albgri.com/' + location.search + location.hash);
+  </script>
   <meta name="description" content="Map your trip day by day and share the route as text, link or image.">
   <meta name="theme-color" content="#2f6fde">
   <link rel="manifest" href="manifest.webmanifest">

@@ -1,11 +1,17 @@
-// Link corti per Follow Me (fm.albgri.com).
-// POST / con il viaggio compresso (lo stesso codice dei link lunghi #t=) -> { url: "https://fm.albgri.com/<id>" }
-// GET /<id> -> redirect all'app con il link lungo: l'app non deve sapere nulla dei link corti.
-const APP_URL = 'https://albgri.github.io/follow-me/';
-const ALLOWED_ORIGINS = [/^https:\/\/albgri\.github\.io$/, /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/];
+// Porta d'ingresso di Follow Me su fm.albgri.com:
+// - POST / con il viaggio compresso (lo stesso codice dei link lunghi #t=) -> { url: "https://fm.albgri.com/<id>" }
+// - GET /<id> -> redirect all'app con il link lungo: l'app non deve sapere nulla dei link corti
+// - tutto il resto -> l'app pubblicata su GitHub Pages, servita da questo dominio
+const UPSTREAM = 'https://albgri.github.io/follow-me';
+const ALLOWED_ORIGINS = [
+  /^https:\/\/fm\.albgri\.com$/,
+  /^https:\/\/albgri\.github\.io$/,
+  /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
+];
 const MAX_CODE_LENGTH = 20000;
 const MAX_TEXT_LENGTH = 50000;
 const BASE64URL = /^[A-Za-z0-9_-]+$/;
+// senza punto ne' barra: non si confonde con i file dell'app (sw.js, js/app.js, ...)
 const ID_PATTERN = /^[A-Za-z0-9]{8,12}$/;
 // 8 caratteri base62 bastano; i 12 servono solo nel caso (remoto) di due viaggi con lo stesso prefisso
 const ID_LENGTHS = [8, 12];
@@ -24,8 +30,11 @@ export default {
       // sempre https: in sviluppo locale l'origine sarebbe http
       return createLink(request, env, `https://${url.host}`, cors);
     }
-    if (request.method === 'GET' || request.method === 'HEAD') return openLink(url.pathname.slice(1), env);
-    return new Response('Method not allowed', { status: 405 });
+    if (request.method !== 'GET' && request.method !== 'HEAD') return new Response('Method not allowed', { status: 405 });
+
+    const id = url.pathname.slice(1);
+    if (ID_PATTERN.test(id)) return openLink(id, env);
+    return fetch(`${UPSTREAM}${url.pathname}${url.search}`, { method: request.method });
   },
 };
 
@@ -59,10 +68,10 @@ async function createLink(request, env, origin, cors) {
 }
 
 async function openLink(id, env) {
-  if (!id) return Response.redirect(APP_URL, 302);
-  const code = ID_PATTERN.test(id) ? await env.TRIPS.get(id) : null;
+  const code = await env.TRIPS.get(id);
   if (!code) return notFoundPage();
-  return Response.redirect(`${APP_URL}#t=${code}`, 302);
+  // Location relativa: resta sullo stesso dominio, anche in sviluppo locale
+  return new Response(null, { status: 302, headers: { Location: `/#t=${code}` } });
 }
 
 /** Il codice deve essere un testo compresso, non troppo grande, con almeno una tappa. */
@@ -105,6 +114,6 @@ function notFoundPage() {
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Follow Me</title>
 <body style="font-family:system-ui,sans-serif;max-width:32rem;margin:15vh auto;padding:0 16px;line-height:1.5">
 <h1>Follow Me</h1><p>Link non trovato o non valido. / Link not found or invalid.</p>
-<p><a href="${APP_URL}">Apri Follow Me / Open Follow Me</a></p></body></html>`;
+<p><a href="/">Apri Follow Me / Open Follow Me</a></p></body></html>`;
   return new Response(html, { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
 }
