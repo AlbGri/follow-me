@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 - 2026-11-04
+- Nuovo indirizzo: fm.albgri.com. Chi apre il vecchio albgri.github.io/follow-me viene portato li'
+- Link di condivisione corti (fm.albgri.com/ seguito da 8 caratteri); se il servizio non risponde, l'app usa il link lungo
+- Anteprima del link nelle chat (WhatsApp, Telegram e simili) con nome, descrizione e icona
+
 ## 0.3.0 - 2026-11-04
 - Export testo in due formati: "per reimportare" (con coordinate) e "da condividere" (senza simboli né
   coordinate, per post e messaggi); anche il secondo si reimporta, con le tappe cercate per nome
