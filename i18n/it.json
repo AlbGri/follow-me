@@ -42,7 +42,6 @@
   "action.exportImage": "Esporta immagine",
   "share.title": "Link di condivisione",
   "share.help": "Il viaggio è contenuto nel link stesso: chi lo apre può importarlo, senza account.",
-  "share.length": "Lunghezza: {count} caratteri.",
   "share.native": "Condividi...",
   "share.received": "Ti hanno condiviso un viaggio: controllalo e importalo.",
   "share.invalid": "Il link di condivisione non è valido o è incompleto.",
@@ -96,5 +95,7 @@
   "export.format.full": "Per reimportare",
   "export.format.share": "Da condividere",
   "export.help.full": "Con coordinate: si reimporta identico con \"Importa testo\". Adatto a backup e a chi vuole rifare il viaggio.",
-  "export.help.share": "Senza simboli né coordinate, da incollare in un post o in un messaggio. Si può anche reimportare: le tappe vengono cercate per nome."
+  "export.help.share": "Senza simboli né coordinate, da incollare in un post o in un messaggio. Si può anche reimportare: le tappe vengono cercate per nome.",
+  "share.creating": "Creo il link...",
+  "share.longFallback": "Il servizio dei link corti non risponde: questo è il link completo ({count} caratteri), funziona comunque."
 }

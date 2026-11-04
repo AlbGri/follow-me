@@ -63,8 +63,11 @@ export function openTextExport(texts, filename) {
   show(format);
 }
 
-/** Mostra il link di condivisione, con condivisione nativa dove disponibile (mobile). */
-export function openShareLink(url, title) {
+/**
+ * Mostra il link di condivisione, con condivisione nativa dove disponibile (mobile).
+ * @param {{url: string, short: boolean}} link short false = servizio dei link corti non raggiungibile
+ */
+export function openShareLink({ url, short }, title) {
   const status = el('p', { className: 'status' });
   const input = el('input', { className: 'share-url', value: url, readOnly: true, onfocus: () => input.select() });
   const nativeShare = navigator.share
@@ -74,7 +77,7 @@ export function openShareLink(url, title) {
     t('share.title'),
     hint(t('share.help')),
     input,
-    hint(t('share.length', { count: url.length })),
+    ...(short ? [] : [hint(t('share.longFallback', { count: url.length }))]),
     status,
     actions(copyButton(url, status), ...nativeShare, closeButton()),
   );

@@ -42,7 +42,6 @@
   "action.exportImage": "Export image",
   "share.title": "Share link",
   "share.help": "The trip is stored in the link itself: whoever opens it can import it, no account needed.",
-  "share.length": "Length: {count} characters.",
   "share.native": "Share...",
   "share.received": "Someone shared a trip with you: check it and import it.",
   "share.invalid": "The share link is invalid or incomplete.",
@@ -96,5 +95,7 @@
   "export.format.full": "To reimport",
   "export.format.share": "To share",
   "export.help.full": "With coordinates: imports back identical with \"Import text\". Good for backups and for whoever wants to repeat the trip.",
-  "export.help.share": "No symbols or coordinates, to paste in a post or a message. It can be imported too: stops are searched by name."
+  "export.help.share": "No symbols or coordinates, to paste in a post or a message. It can be imported too: stops are searched by name.",
+  "share.creating": "Creating the link...",
+  "share.longFallback": "The short link service is not responding: this is the full link ({count} characters), it works anyway."
 }

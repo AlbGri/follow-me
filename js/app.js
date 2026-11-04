@@ -773,7 +773,10 @@ Sortable.create(elements.days, {
   onEnd: ({ oldIndex, newIndex }) => moveDay(oldIndex, newIndex),
 });
 elements.shareLink.addEventListener('click', async () => {
-  openShareLink(await createShareUrl(currentTripText()), tripLabel(currentTrip()));
+  showStatus(t('share.creating'));
+  const link = await createShareUrl(currentTripText());
+  showStatus('');
+  openShareLink(link, tripLabel(currentTrip()));
 });
 elements.exportImage.addEventListener('click', openImageExport);
 // link incollato con l'app gia' aperta: cambia solo l'hash, senza ricaricare

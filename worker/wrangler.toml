@@ -1,0 +1,10 @@
+# Worker dei link corti (fm.albgri.com). Pubblicazione: npx wrangler deploy (da questa cartella)
+name = "follow-me-links"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = false
+
+routes = [{ pattern = "fm.albgri.com", custom_domain = true }]
+
+# id del namespace creato con: npx wrangler kv namespace create TRIPS
+kv_namespaces = [{ binding = "TRIPS", id = "DA_CREARE" }]

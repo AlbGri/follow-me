@@ -1,3 +1,5 @@
 CLAUDE.md
 _local/
 STATO_PROGETTO.md
+worker/.wrangler/
+worker/node_modules/
