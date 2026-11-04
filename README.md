@@ -3,6 +3,8 @@
 Web app per disegnare su mappa i giri di un viaggio: tappe divise per giorno, in ordine,
 da condividere come testo, link o immagine.
 
+**Prova l'app: https://albgri.github.io/follow-me/**
+
 ## Funzioni
 - Più viaggi salvati nel browser, nessun account
 - Tappe aggiunte cliccando sulla mappa o cercando un luogo per nome
