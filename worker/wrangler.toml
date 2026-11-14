@@ -1,11 +1,11 @@
-# Worker di fm.albgri.com: serve l'app da GitHub Pages e gestisce i link corti.
+# Worker di follow-me.albgri.com: serve l'app da GitHub Pages e gestisce i link corti.
 # Pubblicazione: npx wrangler@3 deploy (da questa cartella; wrangler 4 richiede Node 22+)
 name = "follow-me-links"
 main = "src/index.js"
 compatibility_date = "2025-06-01"
 workers_dev = false
 
-routes = [{ pattern = "fm.albgri.com", custom_domain = true }]
+routes = [{ pattern = "follow-me.albgri.com", custom_domain = true }]
 
 # id del namespace creato con: npx wrangler kv namespace create TRIPS
 kv_namespaces = [{ binding = "TRIPS", id = "6c039516a0cf4582844fd12200381a07" }]

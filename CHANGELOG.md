@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1 - 2026-11-14
+- Nuovo indirizzo: follow-me.albgri.com, al posto di fm.albgri.com. I link corti gia' condivisi si aprono
+  sostituendo fm con follow-me; i viaggi salvati nel browser sul vecchio indirizzo non passano al nuovo
+
 ## 0.4.0 - 2026-11-04
 - Nuovo indirizzo: fm.albgri.com. Chi apre il vecchio albgri.github.io/follow-me viene portato li'
 - Link di condivisione corti (fm.albgri.com/ seguito da 8 caratteri); se il servizio non risponde, l'app usa il link lungo

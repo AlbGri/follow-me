@@ -1,10 +1,10 @@
-// Porta d'ingresso di Follow Me su fm.albgri.com:
-// - POST / con il viaggio compresso (lo stesso codice dei link lunghi #t=) -> { url: "https://fm.albgri.com/<id>" }
+// Porta d'ingresso di Follow Me su follow-me.albgri.com:
+// - POST / con il viaggio compresso (lo stesso codice dei link lunghi #t=) -> { url: "https://follow-me.albgri.com/<id>" }
 // - GET /<id> -> redirect all'app con il link lungo: l'app non deve sapere nulla dei link corti
 // - tutto il resto -> l'app pubblicata su GitHub Pages, servita da questo dominio
 const UPSTREAM = 'https://albgri.github.io/follow-me';
 const ALLOWED_ORIGINS = [
-  /^https:\/\/fm\.albgri\.com$/,
+  /^https:\/\/follow-me\.albgri\.com$/,
   /^https:\/\/albgri\.github\.io$/,
   /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/,
 ];

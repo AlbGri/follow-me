@@ -1,7 +1,7 @@
 // Link di condivisione: il viaggio in formato testo, compresso, nell'hash dell'URL (#t=...)
 const HASH_PREFIX = '#t=';
 // Worker in worker/: salva il codice e risponde con un link corto che rimanda qui
-const SHORT_LINK_SERVICE = 'https://fm.albgri.com/';
+const SHORT_LINK_SERVICE = 'https://follow-me.albgri.com/';
 const SHORT_LINK_TIMEOUT_MS = 5000;
 
 async function compress(text) {
@@ -28,7 +28,7 @@ function fromBase64Url(code) {
 }
 
 /**
- * Link di condivisione: corto (fm.albgri.com) se il servizio risponde, altrimenti quello lungo
+ * Link di condivisione: corto (follow-me.albgri.com) se il servizio risponde, altrimenti quello lungo
  * con il viaggio nell'URL, che funziona sempre, anche offline.
  * @returns {Promise<{url: string, short: boolean}>}
  */
