@@ -55,11 +55,6 @@ body {
   height: 100%;
 }
 
-.btn:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-
 /* ---- Impaginazione: pannello e mappa a tutto schermo ---- */
 .layout {
   display: flex;

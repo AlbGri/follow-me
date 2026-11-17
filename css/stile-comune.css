@@ -81,8 +81,10 @@ h1 { font: 700 1.9rem/1.1 var(--serif); letter-spacing: -.01em; margin: 0 0 6px;
 
 .btn { display: inline-block; border: 1px solid var(--line); background: var(--surface); color: var(--ink); border-radius: 6px; padding: 6px 12px;
   font: .92rem/1.2 var(--sans); text-decoration: none; cursor: pointer; }
-.btn:hover { border-color: var(--muted); }
+.btn:hover:not(:disabled) { border-color: var(--muted); }
 .btn[aria-pressed="true"] { position: relative; background: var(--surface-2); border-color: var(--ink); }
+/* disattivato: si vede che c'e' ma non risponde, anche il giallo */
+.btn:disabled { opacity: .35; cursor: default; }
 .btn.primario { background: var(--accent); border-color: var(--segno); color: var(--on-accent); font-weight: 700; }
 .segmenti { display: inline-flex; }
 .segmenti .btn { border-radius: 0; margin-left: -1px; }
@@ -172,7 +174,7 @@ dialog.finestra h2 { font: 700 1.25rem/1.2 var(--serif); margin: 0 0 8px; }
 .avviso.errore { border-color: var(--pericolo); }
 .avviso.errore b { color: var(--pericolo); }
 .btn.pericolo { color: var(--pericolo); }
-.btn.pericolo:hover { border-color: var(--pericolo); }
+.btn.pericolo:hover:not(:disabled) { border-color: var(--pericolo); }
 .btn.pericolo.pieno { background: var(--pericolo); border-color: var(--pericolo); color: var(--surface); font-weight: 700; }
 /* messaggio a colori invertiti: deve leggersi anche sopra una mappa */
 .toast { position: fixed; left: 50%; bottom: 16px; z-index: 30; transform: translateX(-50%); display: flex; gap: 12px; align-items: center;
