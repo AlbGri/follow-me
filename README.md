@@ -19,6 +19,7 @@ da condividere come testo, link o immagine.
 - Immagine quadrata o verticale con mappa ed elenco delle tappe
 - Installabile come app (PWA) con il pulsante "Salva app", utilizzabile offline (mappa esclusa)
 - Interfaccia in italiano e inglese
+- Tema chiaro e scuro
 
 ## Formato testo
 ```
@@ -54,6 +55,7 @@ poi aprire http://localhost:8000
 - Riordino: [SortableJS](https://sortablejs.github.io/Sortable/)
 - Dati: © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright)
 - Ricerca luoghi: [Nominatim](https://nominatim.org/)
+- Caratteri: [Alegreya](https://github.com/huertatipografica/Alegreya) e [Atkinson Hyperlegible Next](https://github.com/googlefonts/atkinson-hyperlegible-next)
 
 ## Licenza
-[AGPL-3.0](LICENSE)
+[AGPL-3.0](LICENSE). I caratteri in `fonts/` hanno la loro licenza, SIL Open Font License 1.1 (file `OFL-*.txt`).

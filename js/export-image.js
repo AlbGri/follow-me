@@ -1,13 +1,18 @@
-// Export PNG in formato fisso per i social: titolo, mappa, elenco tappe, attribuzione
+// Export PNG in formato fisso per i social: titolo, mappa, elenco tappe, attribuzione.
+// L'immagine esce dal sito (chat, stampa): e' sempre chiara, qualunque sia il tema.
 import { createSnapshotMap } from './map.js';
 
 export const IMAGE_FORMATS = { square: { width: 1080, height: 1080 }, portrait: { width: 1080, height: 1350 } };
 
 // Richiesta dalle licenze di OpenStreetMap e OpenMapTiles
 const ATTRIBUTION = '© OpenStreetMap contributors · © OpenMapTiles · OpenFreeMap';
-const FONT_FAMILY = 'system-ui, -apple-system, "Segoe UI", sans-serif';
-const TEXT_COLOR = '#1d2330';
-const MUTED_COLOR = '#687185';
+const SITE = 'follow-me.albgri.com';
+const FONT_FAMILY = '"Atkinson Hyperlegible Next", "Segoe UI", Roboto, sans-serif';
+const TITLE_FONT = '700 44px Alegreya, Palatino, Georgia, serif';
+const BACKGROUND_COLOR = '#f4f6fa';
+const TEXT_COLOR = '#26242b';
+const MUTED_COLOR = '#625f69';
+const HIGHLIGHT_COLOR = '#f6eb61';
 // la mappa e' generata a meta' risoluzione CSS con pixelRatio 2: etichette leggibili a 1080px
 const PIXEL_RATIO = 2;
 
@@ -28,6 +33,9 @@ const MIN_MAP_SHARE = 0.5;
  */
 export async function renderTripImage({ title, format, days }) {
   const { width, height } = IMAGE_FORMATS[format];
+  // il canvas non aspetta i caratteri: vanno caricati prima, per i segni che servono davvero
+  const text = [title, ...days.flatMap((day) => [day.label, ...day.stops.map((stop) => stop.name)])].join(' ');
+  await Promise.all([TITLE_FONT, `400 24px ${FONT_FAMILY}`, `700 24px ${FONT_FAMILY}`].map((font) => document.fonts.load(font, text)));
   const columnWidth = (width - 2 * PADDING - COLUMN_GAP) / 2;
   const columns = splitInColumns(listRows(days));
   const listHeight = Math.max(0, ...columns.map(columnHeight));
@@ -45,13 +53,17 @@ export async function renderTripImage({ title, format, days }) {
   canvas.width = width;
   canvas.height = HEADER_HEIGHT + mapHeight + listBlock + FOOTER_HEIGHT;
   const context = canvas.getContext('2d');
-  context.fillStyle = '#ffffff';
+  context.fillStyle = BACKGROUND_COLOR;
   context.fillRect(0, 0, canvas.width, canvas.height);
   context.textBaseline = 'middle';
 
+  // titolo con il tratto giallo da evidenziatore: la firma che fa riconoscere l'immagine fuori dal sito
+  context.font = TITLE_FONT;
+  const fittedTitle = fitText(context, title, width - 2 * PADDING);
+  context.fillStyle = HIGHLIGHT_COLOR;
+  context.fillRect(PADDING, PADDING + 33, context.measureText(fittedTitle).width, 24);
   context.fillStyle = TEXT_COLOR;
-  context.font = `600 44px ${FONT_FAMILY}`;
-  context.fillText(fitText(context, title, width - 2 * PADDING), PADDING, PADDING + 28);
+  context.fillText(fittedTitle, PADDING, PADDING + 28);
 
   try {
     context.drawImage(snapshot.canvas, 0, HEADER_HEIGHT, width, mapHeight);
@@ -82,6 +94,8 @@ export async function renderTripImage({ title, format, days }) {
 
   context.fillStyle = MUTED_COLOR;
   context.font = `20px ${FONT_FAMILY}`;
+  context.textAlign = 'left';
+  context.fillText(SITE, PADDING, canvas.height - FOOTER_HEIGHT / 2);
   context.textAlign = 'right';
   context.fillText(ATTRIBUTION, width - PADDING, canvas.height - FOOTER_HEIGHT / 2);
 
@@ -125,7 +139,7 @@ function drawRow(context, row, x, y, maxWidth) {
     context.arc(x + 10, centerY, 10, 0, Math.PI * 2);
     context.fill();
     context.fillStyle = TEXT_COLOR;
-    context.font = `600 26px ${FONT_FAMILY}`;
+    context.font = `700 26px ${FONT_FAMILY}`;
     context.textAlign = 'left';
     context.fillText(fitText(context, row.day.label, maxWidth - 32), x + 32, centerY);
     return;
@@ -147,7 +161,7 @@ function drawBadge(context, centerX, centerY, radius, color, number) {
   context.fill();
   context.stroke();
   context.fillStyle = '#ffffff';
-  context.font = `600 ${Math.round(radius * 1.05)}px ${FONT_FAMILY}`;
+  context.font = `700 ${Math.round(radius * 1.05)}px ${FONT_FAMILY}`;
   context.textAlign = 'center';
   context.fillText(String(number), centerX, centerY + 1);
 }

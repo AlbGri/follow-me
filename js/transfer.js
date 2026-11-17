@@ -4,10 +4,10 @@ import { t, getLanguage } from './i18n.js';
 import { textToTrip } from './textformat.js';
 import { dayIsoDate, formatDate } from './dates.js';
 import { searchPlaces, areaAround } from './geocode.js';
-import { openDialog, closeDialog, hint, actions, closeButton, copyText } from './dialog.js';
+import { openDialog, closeDialog, hint, actions, closeButton, copyText, setStatus } from './dialog.js';
 
 function copyButton(text, status) {
-  return el('button', { type: 'button', className: 'primary', textContent: t('dialog.copy'), onclick: () => copyText(text, status) });
+  return el('button', { type: 'button', className: 'btn primario', textContent: t('dialog.copy'), onclick: () => copyText(text, status) });
 }
 
 const EXPORT_FORMAT_KEY = 'followme.exportFormat';
@@ -22,42 +22,43 @@ export function openTextExport(texts, filename) {
   let format = localStorage.getItem(EXPORT_FORMAT_KEY) === 'share' ? 'share' : 'full';
   const status = el('p', { className: 'status' });
   const help = hint('');
-  const area = el('textarea', { className: 'dialog-text', readOnly: true, rows: 12 });
+  const area = el('textarea', { className: 'campo codice', readOnly: true, rows: 12 });
   const count = hint('');
   const formatButtons = ['full', 'share'].map((key) =>
-    el('button', { type: 'button', textContent: t(`export.format.${key}`), onclick: () => show(key) }),
+    el('button', { type: 'button', className: 'btn', textContent: t(`export.format.${key}`), onclick: () => show(key) }),
   );
 
   function show(key) {
     format = key;
     localStorage.setItem(EXPORT_FORMAT_KEY, key);
-    formatButtons.forEach((button, index) => button.classList.toggle('active', ['full', 'share'][index] === key));
+    formatButtons.forEach((button, index) => button.setAttribute('aria-pressed', ['full', 'share'][index] === key));
     help.textContent = t(`export.help.${key}`);
     area.value = texts[key];
     count.textContent = t('export.chars', { count: texts[key].length });
-    status.textContent = '';
+    setStatus(status, '');
   }
 
   openDialog(
     t('export.title'),
-    el('div', { className: 'segmented' }, ...formatButtons),
+    el('div', { className: 'segmenti' }, ...formatButtons),
     help,
     area,
     count,
     status,
     actions(
+      closeButton(),
       el('button', {
         type: 'button',
-        className: 'primary',
-        textContent: t('dialog.copy'),
-        onclick: () => copyText(texts[format], status),
-      }),
-      el('button', {
-        type: 'button',
+        className: 'btn',
         textContent: t('export.download'),
         onclick: () => downloadBlob(new Blob([texts[format]], { type: 'text/plain;charset=utf-8' }), filename),
       }),
-      closeButton(),
+      el('button', {
+        type: 'button',
+        className: 'btn primario',
+        textContent: t('dialog.copy'),
+        onclick: () => copyText(texts[format], status),
+      }),
     ),
   );
   show(format);
@@ -69,9 +70,9 @@ export function openTextExport(texts, filename) {
  */
 export function openShareLink({ url, short }, title) {
   const status = el('p', { className: 'status' });
-  const input = el('input', { className: 'share-url', value: url, readOnly: true, onfocus: () => input.select() });
+  const input = el('input', { className: 'campo', value: url, readOnly: true, onfocus: () => input.select() });
   const nativeShare = navigator.share
-    ? [el('button', { type: 'button', textContent: t('share.native'), onclick: () => navigator.share({ title, url }).catch(() => {}) })]
+    ? [el('button', { type: 'button', className: 'btn', textContent: t('share.native'), onclick: () => navigator.share({ title, url }).catch(() => {}) })]
     : [];
   openDialog(
     t('share.title'),
@@ -79,7 +80,7 @@ export function openShareLink({ url, short }, title) {
     input,
     ...(short ? [] : [hint(t('share.longFallback', { count: url.length }))]),
     status,
-    actions(copyButton(url, status), ...nativeShare, closeButton()),
+    actions(closeButton(), ...nativeShare, copyButton(url, status)),
   );
 }
 
@@ -94,7 +95,7 @@ export function openTextImport({ text = '', notice = '', onImport }) {
   const status = el('p', { className: 'status' });
   const review = el('div', { className: 'import-review' });
   const area = el('textarea', {
-    className: 'dialog-text',
+    className: 'campo codice',
     value: text,
     rows: 10,
     placeholder: t('import.placeholder'),
@@ -112,10 +113,10 @@ export function openTextImport({ text = '', notice = '', onImport }) {
       analyze();
     },
   });
-  const analyzeButton = el('button', { type: 'button', textContent: t('import.analyze'), onclick: () => analyze() });
+  const analyzeButton = el('button', { type: 'button', className: 'btn', textContent: t('import.analyze'), onclick: () => analyze() });
   const confirmButton = el('button', {
     type: 'button',
-    className: 'primary',
+    className: 'btn primario',
     textContent: t('import.confirm'),
     disabled: true,
     onclick: () => {
@@ -130,7 +131,7 @@ export function openTextImport({ text = '', notice = '', onImport }) {
     review.replaceChildren();
     const stops = parsed.days.flatMap((day) => day.stops);
     if (stops.length === 0) {
-      status.textContent = t('import.empty');
+      setStatus(status, t('import.empty'), true);
       return;
     }
 
@@ -139,7 +140,7 @@ export function openTextImport({ text = '', notice = '', onImport }) {
     analyzeButton.disabled = true;
     try {
       for (const [index, stop] of toSearch.entries()) {
-        status.textContent = t('import.geocoding', { name: stop.name, current: index + 1, total: toSearch.length });
+        setStatus(status, t('import.geocoding', { name: stop.name, current: index + 1, total: toSearch.length }));
         // zona preferita: quella delle tappe gia' localizzate in questo testo
         const area = areaAround(stops);
         const [place] = await searchPlaces(stop.name, getLanguage(), area);
@@ -151,7 +152,7 @@ export function openTextImport({ text = '', notice = '', onImport }) {
         if (place) Object.assign(stop, { lat: place.lat, lng: place.lng, found: place.description });
       }
     } catch {
-      status.textContent = t('error.geocode');
+      setStatus(status, t('error.geocode'), true);
       return;
     } finally {
       analyzeButton.disabled = false;
@@ -159,19 +160,19 @@ export function openTextImport({ text = '', notice = '', onImport }) {
 
     review.replaceChildren(...parsed.days.map((day, dayIndex) => renderReviewDay(day, dayIndex, parsed.startDate)));
     const ready = stops.filter((stop) => stop.lat !== null).length;
-    status.textContent = t('import.summary', { count: ready, total: stops.length });
+    setStatus(status, t('import.summary', { count: ready, total: stops.length }));
     confirmButton.disabled = ready === 0;
   }
 
   openDialog(
     t('import.title'),
-    ...(notice ? [el('p', { className: 'notice', textContent: notice })] : []),
+    ...(notice ? [el('p', { className: 'avviso', textContent: notice })] : []),
     hint(t('import.help')),
     area,
-    el('label', { className: 'file-label' }, `${t('import.file')} `, fileInput),
+    el('label', { className: 'etichetta' }, `${t('import.file')} `, fileInput),
     status,
     review,
-    actions(analyzeButton, confirmButton, closeButton()),
+    actions(closeButton(), analyzeButton, confirmButton),
   );
   if (text) analyze();
 }

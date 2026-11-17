@@ -1,12 +1,15 @@
 import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs';
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
+// OpenFreeMap non documenta questo stile: se non si carica si torna a liberty
+const DARK_STYLE_URL = 'https://tiles.openfreemap.org/styles/fiord';
 const DAY_COLORS = ['#e6194b', '#4363d8', '#3cb44b', '#f58231', '#911eb4', '#0aa5b8', '#f032e6', '#9a6324'];
 const ROUTE_SOURCE = 'routes';
 // sotto questo zoom la vista e' troppo ampia per orientare la ricerca
 const MIN_ZOOM_FOR_SEARCH_AREA = 6;
 
 let map;
+let styleRequest = 0;
 let markers = [];
 let popup = null;
 let routeData = featureCollection([]);
@@ -60,7 +63,8 @@ function fit(target, stops, padding) {
 
 /** Crea la mappa; onMapClick(lat, lng) riceve i click sulla mappa (non sui marker). */
 export function createMap(container, onMapClick) {
-  map = new maplibregl.Map({ container, style: STYLE_URL, center: [10, 30], zoom: 1.5 });
+  // lo stile arriva da setMapTheme, chiamata subito dopo
+  map = new maplibregl.Map({ container, center: [10, 30], zoom: 1.5 });
   map.addControl(new maplibregl.NavigationControl(), 'top-right');
   // il permesso di posizione viene chiesto solo premendo il pulsante
   map.addControl(
@@ -76,7 +80,27 @@ export function createMap(container, onMapClick) {
     }
     onMapClick(event.lngLat.lat, event.lngLat.lng);
   });
-  map.on('load', () => addRouteLayers(map, routeData));
+  // a ogni cambio di stile le linee del viaggio vanno rimesse
+  map.on('style.load', () => addRouteLayers(map, routeData));
+}
+
+async function styleFor(dark) {
+  if (!dark) return STYLE_URL;
+  try {
+    const response = await fetch(DARK_STYLE_URL);
+    if (response.ok) return await response.json();
+  } catch {
+    // stile scuro non raggiungibile o non valido: sotto
+  }
+  return STYLE_URL;
+}
+
+/** Stile della mappa per il tema: scuro se disponibile, altrimenti quello chiaro. */
+export async function setMapTheme(dark) {
+  const request = ++styleRequest;
+  const style = await styleFor(dark);
+  // due cambi ravvicinati: vale l'ultimo chiesto, non l'ultimo arrivato
+  if (request === styleRequest) map.setStyle(style, { diff: false });
 }
 
 function showPopup(marker, text) {

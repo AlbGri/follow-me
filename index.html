@@ -8,6 +8,8 @@
   <script>
     // l'indirizzo dell'app e' follow-me.albgri.com: chi arriva dal vecchio indirizzo GitHub viene rimandato li'
     if (location.hostname === 'albgri.github.io') location.replace('https://follow-me.albgri.com/' + location.search + location.hash);
+    // tema scelto a mano, applicato prima del primo disegno (il resto in js/theme.js)
+    if (localStorage.getItem('follow-me/tema')) document.documentElement.dataset.tema = localStorage.getItem('follow-me/tema');
   </script>
   <meta name="description" content="Map your trip day by day and share the route as text, link or image.">
   <!-- anteprima dei link nelle chat; vale anche per i link corti, che rimandano qui -->
@@ -16,11 +18,13 @@
   <meta property="og:image" content="https://follow-me.albgri.com/icons/icon-512.png">
   <meta property="og:url" content="https://follow-me.albgri.com/">
   <meta property="og:type" content="website">
-  <meta name="theme-color" content="#2f6fde">
+  <meta name="theme-color" content="#f4f6fa" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#232025" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.css">
+  <link rel="stylesheet" href="css/stile-comune.css">
   <link rel="stylesheet" href="css/style.css">
   <script type="module" src="js/app.js"></script>
 </head>
@@ -29,52 +33,53 @@
     <aside class="panel">
       <header class="panel-header">
         <h1>Follow Me</h1>
-        <div class="header-actions">
-          <button id="install-app" type="button" data-i18n="install.button" hidden></button>
-          <button id="language-toggle" type="button" class="language-toggle"></button>
-        </div>
+        <span class="controlli">
+          <button id="install-app" type="button" class="btn" data-i18n="install.button" hidden></button>
+          <button id="language-toggle" type="button" class="btn lingua"></button>
+          <button id="theme-toggle" type="button" class="btn tema"></button>
+        </span>
       </header>
-      <p id="storage-notice" class="notice storage-notice" hidden></p>
+      <div id="storage-notice" class="avviso storage-notice" hidden></div>
 
       <div class="trip-bar">
-        <select id="trip-select" data-i18n-title="trip.select"></select>
-        <button id="trip-new" type="button" data-i18n="trip.new"></button>
-        <button id="trip-delete" type="button" class="danger" data-i18n="trip.delete"></button>
+        <select id="trip-select" class="campo" data-i18n-title="trip.select"></select>
+        <button id="trip-new" type="button" class="btn" data-i18n="trip.new"></button>
+        <button id="trip-delete" type="button" class="btn pericolo" data-i18n="trip.delete"></button>
       </div>
       <div class="trip-meta">
-        <input id="trip-title" class="trip-title" data-i18n-placeholder="trip.titlePlaceholder">
-        <input id="trip-start" class="trip-start" type="date" data-i18n-title="trip.startDate">
+        <input id="trip-title" class="campo" data-i18n-placeholder="trip.titlePlaceholder">
+        <input id="trip-start" class="campo trip-start" type="date" data-i18n-title="trip.startDate">
       </div>
       <div class="toolbar">
-        <button id="import-text" type="button" data-i18n="action.importText"></button>
-        <button id="export-text" type="button" data-i18n="action.exportText"></button>
-        <button id="share-link" type="button" data-i18n="action.shareLink"></button>
-        <button id="export-image" type="button" data-i18n="action.exportImage"></button>
+        <button id="import-text" type="button" class="btn" data-i18n="action.importText"></button>
+        <button id="export-text" type="button" class="btn" data-i18n="action.exportText"></button>
+        <button id="share-link" type="button" class="btn" data-i18n="action.shareLink"></button>
+        <button id="export-image" type="button" class="btn primario" data-i18n="action.exportImage"></button>
       </div>
 
       <form id="search-form" class="search">
-        <input id="search-input" type="search" data-i18n-placeholder="search.placeholder">
-        <button type="submit" data-i18n="search.button"></button>
+        <input id="search-input" class="campo" type="search" data-i18n-placeholder="search.placeholder">
+        <button type="submit" class="btn" data-i18n="search.button"></button>
       </form>
       <ul id="search-results" class="search-results"></ul>
       <p id="status" class="status" aria-live="polite"></p>
       <div class="days-bar">
         <p class="hint" data-i18n="hint.click"></p>
-        <button id="collapse-all" type="button" class="link-button"></button>
+        <button id="collapse-all" type="button" class="btn"></button>
       </div>
 
       <div id="days" class="days"></div>
-      <button id="day-add" type="button" data-i18n="day.add"></button>
+      <button id="day-add" type="button" class="btn" data-i18n="day.add"></button>
     </aside>
     <main class="map-area">
       <div id="map" class="map"></div>
       <div id="day-filter" class="day-filter"></div>
     </main>
   </div>
-  <dialog id="dialog" class="dialog"></dialog>
+  <dialog id="dialog" class="finestra"></dialog>
   <div id="toast" class="toast" role="status" hidden>
     <span id="toast-message"></span>
-    <button id="toast-undo" type="button" data-i18n="undo.action"></button>
+    <button id="toast-undo" type="button" class="btn" data-i18n="undo.action"></button>
   </div>
 </body>
 </html>

@@ -10,17 +10,19 @@ import {
   createStop,
   roundCoordinate,
 } from './store.js';
-import { createMap, renderTrip, fitStops, flyTo, dayColor, getViewArea } from './map.js';
+import { createMap, setMapTheme, renderTrip, fitStops, flyTo, dayColor, getViewArea } from './map.js';
 import { searchPlaces, reversePlace, areaAround } from './geocode.js';
 import { el, byId, slugify, downloadBlob } from './dom.js';
 import { tripToText, tripToShareText, stopToLine, stopsToText, linesToStops } from './textformat.js';
-import { openDialog, closeDialog, hint, actions, closeButton, copyText } from './dialog.js';
+import { openDialog, closeDialog, hint, actions, closeButton, copyText, setStatus } from './dialog.js';
 import { openTextExport, openTextImport, openShareLink } from './transfer.js';
 import { createShareUrl, readSharedText } from './share.js';
 import { renderTripImage } from './export-image.js';
 import { setupInstallButton, isInstalled } from './install.js';
 import { placeUrl, directionsUrl, routeUrls } from './gmaps.js';
 import { dayIsoDate, formatDate } from './dates.js';
+import { icon, flag } from './icons.js';
+import { isDark, toggleTheme, onSystemThemeChange } from './theme.js';
 
 const STORAGE_NOTICE_KEY = 'followme.storageNoticeDismissed';
 const TOAST_DURATION_MS = 6000;
@@ -36,6 +38,7 @@ let toastTimer = null;
 
 const elements = {
   languageToggle: byId('language-toggle'),
+  themeToggle: byId('theme-toggle'),
   storageNotice: byId('storage-notice'),
   tripSelect: byId('trip-select'),
   tripNew: byId('trip-new'),
@@ -67,8 +70,8 @@ function save() {
   saveState(state);
 }
 
-function showStatus(message) {
-  elements.status.textContent = message;
+function showStatus(message, isError = false) {
+  setStatus(elements.status, message, isError);
 }
 
 function tripLabel(trip) {
@@ -101,8 +104,8 @@ function findDay(dayId) {
   return currentTrip().days.find((day) => day.id === dayId);
 }
 
-function iconButton(text, title, onclick, className = '') {
-  return el('button', { type: 'button', className: `icon-button ${className}`, textContent: text, title, onclick });
+function iconButton(name, title, onclick, className = '') {
+  return el('button', { type: 'button', className: `btn icona ${className}`, title, ariaLabel: title, onclick }, icon(name));
 }
 
 // --- Rendering ---
@@ -132,7 +135,7 @@ function renderDayFilter(trip) {
       textContent: label,
       onclick: () => showDay(dayId),
     });
-    button.classList.toggle('active', dayId === visibleDayId);
+    button.setAttribute('aria-pressed', dayId === visibleDayId);
     if (color) button.style.setProperty('--day-color', color);
     return button;
   };
@@ -159,10 +162,14 @@ function visibleStops() {
 function renderTripBar() {
   const trip = currentTrip();
   const nextLanguage = getLanguage() === 'it' ? 'en' : 'it';
-  elements.languageToggle.textContent = nextLanguage.toUpperCase();
-  elements.languageToggle.dataset.flag = nextLanguage;
+  // le scritte (.et) spariscono sul telefono: restano la bandiera e il cerchio
+  elements.languageToggle.replaceChildren(flag(nextLanguage), el('span', { className: 'et', textContent: nextLanguage.toUpperCase() }));
   elements.languageToggle.title = t('language.switch');
-  elements.languageToggle.setAttribute('aria-label', t('language.switch'));
+  elements.languageToggle.ariaLabel = t('language.switch');
+  const nextTheme = isDark() ? 'light' : 'dark';
+  elements.themeToggle.replaceChildren(el('i'), el('span', { className: 'et', textContent: t(`theme.${nextTheme}`) }));
+  elements.themeToggle.title = t(`theme.to.${nextTheme}`);
+  elements.themeToggle.ariaLabel = t(`theme.to.${nextTheme}`);
   elements.tripSelect.replaceChildren(
     ...state.trips.map((item) =>
       el('option', { value: item.id, textContent: tripLabel(item), selected: item.id === trip.id }),
@@ -185,7 +192,8 @@ function renderDays() {
 function renderDay(day, dayIndex) {
   const editing = textEdit?.dayId === day.id;
   const collapsed = collapsedDayIds.has(day.id) && !editing;
-  const card = el('section', { className: 'day' });
+  // 'giorno' e' la classe che stile-comune.css usa per i campi dentro una superficie
+  const card = el('section', { className: 'day giorno' });
   card.dataset.dayId = day.id;
   card.classList.toggle('active', day.id === activeDayId);
   card.classList.toggle('collapsed', collapsed);
@@ -193,7 +201,7 @@ function renderDay(day, dayIndex) {
   card.addEventListener('click', () => setActiveDay(day.id));
 
   const labelInput = el('input', {
-    className: 'day-label',
+    className: 'campo day-label',
     value: day.label,
     placeholder: dayDate(dayIndex) ? t('day.titlePlaceholder') : t('day.default', { n: dayIndex + 1 }),
     oninput: () => {
@@ -206,13 +214,13 @@ function renderDay(day, dayIndex) {
     el(
       'header',
       { className: 'day-header' },
-      iconButton(collapsed ? '▸' : '▾', t(collapsed ? 'day.expand' : 'day.collapse'), () => toggleCollapsed(day.id)),
+      iconButton(collapsed ? 'right' : 'down', t(collapsed ? 'day.expand' : 'day.collapse'), () => toggleCollapsed(day.id)),
       el('span', { className: 'day-dot', title: t('day.drag') }),
       ...(dayDate(dayIndex) ? [el('span', { className: 'day-date', textContent: dayDate(dayIndex) })] : []),
       labelInput,
       el('span', { className: 'day-count', textContent: t('day.count', { count: day.stops.length }) }),
-      iconButton('✎', t('day.editText'), () => startTextEdit(day)),
-      iconButton('×', t('day.delete'), () => deleteDay(day), 'danger'),
+      iconButton('pencil', t('day.editText'), () => startTextEdit(day)),
+      iconButton('close', t('day.delete'), () => deleteDay(day), 'pericolo'),
     ),
   );
   if (editing) card.append(renderTextEditor());
@@ -239,6 +247,7 @@ function renderRouteLinks(day) {
   const routes = routeUrls(day.stops);
   const link = ({ from, to, url }) =>
     el('a', {
+      className: 'rimando',
       href: url,
       target: '_blank',
       rel: 'noopener',
@@ -251,7 +260,7 @@ function renderStop(stop, index) {
   const item = el('li', { className: 'stop' });
   item.dataset.stopId = stop.id;
   const nameInput = el('input', {
-    className: 'stop-name',
+    className: 'campo stop-name',
     value: stop.name,
     placeholder: t('stop.unnamed'),
     oninput: () => {
@@ -261,7 +270,7 @@ function renderStop(stop, index) {
   });
   const timeInput = el('input', {
     type: 'time',
-    className: 'stop-time',
+    className: 'campo stop-time',
     value: stop.time,
     title: t('stop.time'),
     onchange: () => {
@@ -273,14 +282,14 @@ function renderStop(stop, index) {
     el('span', { className: 'stop-number', textContent: String(index + 1), title: t('stop.drag') }),
     nameInput,
     timeInput,
-    iconButton('⋯', t('stop.menu'), () => openStopMenu(stop.id)),
+    iconButton('dots', t('stop.menu'), () => openStopMenu(stop.id)),
   );
   return item;
 }
 
 function renderTextEditor() {
   const area = el('textarea', {
-    className: 'day-text',
+    className: 'campo codice day-text',
     value: textEdit.draft,
     rows: Math.max(4, textEdit.draft.split('\n').length + 1),
     placeholder: t('textEdit.placeholder'),
@@ -288,15 +297,17 @@ function renderTextEditor() {
       textEdit.draft = area.value;
     },
   });
+  const status = el('p', { className: 'status edit-status' });
+  setStatus(status, textEdit.message, textEdit.isError);
   return el(
     'div',
     { className: 'day-editor' },
     hint(t('textEdit.help')),
     area,
-    el('p', { className: 'status edit-status', textContent: textEdit.message }),
+    status,
     actions(
-      el('button', { type: 'button', textContent: t('textEdit.cancel'), onclick: cancelTextEdit }),
-      el('button', { type: 'button', className: 'primary apply-text', textContent: t('textEdit.apply'), onclick: applyTextEdit }),
+      el('button', { type: 'button', className: 'btn', textContent: t('textEdit.cancel'), onclick: cancelTextEdit }),
+      el('button', { type: 'button', className: 'btn apply-text', textContent: t('textEdit.apply'), onclick: applyTextEdit }),
     ),
   );
 }
@@ -383,7 +394,7 @@ async function addStopFromMap(lat, lng) {
     const input = elements.days.querySelector(`[data-stop-id="${stop.id}"] .stop-name`);
     if (input && !input.value) input.value = name;
   } catch {
-    showStatus(t('error.geocode'));
+    showStatus(t('error.geocode'), true);
   }
 }
 
@@ -494,27 +505,31 @@ function openStopMenu(stopId) {
     stop.name || t('stop.unnamed'),
     el('button', {
       type: 'button',
-      className: 'menu-item',
+      className: 'btn menu-item',
       textContent: t('stop.copy'),
       onclick: () => copyText(stopToLine(stop), status, t('stop.copied')),
     }),
     status,
-    el('a', { className: 'menu-item', href: placeUrl(stop), target: '_blank', rel: 'noopener', textContent: t('maps.open') }),
-    el('a', { className: 'menu-item', href: directionsUrl(stop), target: '_blank', rel: 'noopener', textContent: t('maps.directions') }),
+    el(
+      'div',
+      { className: 'menu-links' },
+      el('a', { className: 'rimando', href: placeUrl(stop), target: '_blank', rel: 'noopener', textContent: t('maps.open') }),
+      el('a', { className: 'rimando', href: directionsUrl(stop), target: '_blank', rel: 'noopener', textContent: t('maps.directions') }),
+    ),
     el('h3', { textContent: t('stop.duplicateTo') }),
     dayChoices((dayId) => duplicateStop(stopId, dayId)),
     ...moveSection,
     actions(
+      closeButton(),
       el('button', {
         type: 'button',
-        className: 'danger',
+        className: 'btn pericolo',
         textContent: t('stop.delete'),
         onclick: () => {
           closeDialog();
           deleteStop(stopId);
         },
       }),
-      closeButton(),
     ),
   );
 }
@@ -522,7 +537,7 @@ function openStopMenu(stopId) {
 // --- Modifica di un giorno come testo ---
 
 function startTextEdit(day) {
-  textEdit = { dayId: day.id, draft: stopsToText(day.stops), message: '' };
+  textEdit = { dayId: day.id, draft: stopsToText(day.stops), message: '', isError: false };
   renderDays();
   elements.days.querySelector('.day-text')?.focus();
 }
@@ -532,10 +547,10 @@ function cancelTextEdit() {
   renderDays();
 }
 
-function setEditStatus(message) {
-  textEdit.message = message;
+function setEditStatus(message, isError = false) {
+  Object.assign(textEdit, { message, isError });
   const node = elements.days.querySelector('.edit-status');
-  if (node) node.textContent = message;
+  if (node) setStatus(node, message, isError);
 }
 
 /**
@@ -556,7 +571,7 @@ async function applyTextEdit() {
       if (place) Object.assign(stop, { lat: place.lat, lng: place.lng });
     }
   } catch {
-    setEditStatus(t('error.geocode'));
+    setEditStatus(t('error.geocode'), true);
     return;
   } finally {
     const button = elements.days.querySelector('.apply-text');
@@ -570,6 +585,7 @@ async function applyTextEdit() {
   if (notFound.length) {
     edit.draft = stopsToText(stops);
     edit.message = t('textEdit.notFound', { names: notFound.map((stop) => stop.name).join(', ') });
+    edit.isError = true;
     renderDays();
     return;
   }
@@ -589,7 +605,7 @@ async function onSearch(event) {
   showStatus(t('search.searching'));
   try {
     const places = await searchPlaces(text, getLanguage(), getViewArea());
-    showStatus(places.length ? '' : t('search.noResults'));
+    showStatus(places.length ? '' : t('search.noResults', { name: text }), places.length === 0);
     elements.searchResults.replaceChildren(
       ...places.map((place) =>
         el(
@@ -597,7 +613,7 @@ async function onSearch(event) {
           {},
           el(
             'button',
-            { type: 'button', className: 'search-result', onclick: () => pickPlace(place) },
+            { type: 'button', className: 'btn search-result', onclick: () => pickPlace(place) },
             el('strong', { textContent: place.name }),
             el('span', { textContent: place.description }),
           ),
@@ -605,7 +621,7 @@ async function onSearch(event) {
       ),
     );
   } catch {
-    showStatus(t('error.geocode'));
+    showStatus(t('error.geocode'), true);
   }
 }
 
@@ -667,12 +683,12 @@ function importTrip(parsed) {
 function openImageExport() {
   const status = el('p', { className: 'status' });
   const formatButton = (format) =>
-    el('button', { type: 'button', className: 'primary', textContent: t(`image.${format}`), onclick: () => exportImage(format, status) });
+    el('button', { type: 'button', className: 'btn', textContent: t(`image.${format}`), onclick: () => exportImage(format, status) });
   openDialog(
     t('image.title'),
     hint(t(visibleDayId ? 'image.helpDay' : 'image.helpAll')),
     status,
-    actions(formatButton('square'), formatButton('portrait'), closeButton()),
+    actions(closeButton(), formatButton('square'), formatButton('portrait')),
   );
 }
 
@@ -688,17 +704,17 @@ async function exportImage(format, status) {
       stops: day.stops.map((stop) => ({ ...stop, name: stop.name || t('stop.unnamed') })),
     }));
   if (days.length === 0) {
-    status.textContent = t('image.empty');
+    setStatus(status, t('image.empty'), true);
     return;
   }
-  status.textContent = t('image.working');
+  setStatus(status, t('image.working'));
   try {
     const blob = await renderTripImage({ title: tripLabel(trip), format, days });
     downloadBlob(blob, `${slugify(trip.title)}.png`);
-    status.textContent = t('image.done');
+    setStatus(status, t('image.done'));
   } catch (error) {
     console.error(error);
-    status.textContent = t('image.error');
+    setStatus(status, t('image.error'), true);
   }
 }
 
@@ -707,7 +723,7 @@ async function openSharedTrip() {
     const text = await readSharedText();
     if (text) openTextImport({ text, notice: t('share.received'), onImport: importTrip });
   } catch {
-    showStatus(t('share.invalid'));
+    showStatus(t('share.invalid'), true);
   }
 }
 
@@ -723,6 +739,7 @@ async function checkStorage() {
   text.dataset.i18n = 'storage.notice';
   const dismiss = el('button', {
     type: 'button',
+    className: 'btn',
     textContent: t('storage.dismiss'),
     onclick: () => {
       // la richiesta parte da un click: su Firefox mostra un permesso, non va fatta all'avvio
@@ -740,11 +757,21 @@ async function checkStorage() {
 
 await initI18n();
 createMap(byId('map'), addStopFromMap);
+setMapTheme(isDark());
 
 elements.languageToggle.addEventListener('click', async () => {
   await setLanguage(getLanguage() === 'it' ? 'en' : 'it');
   refresh();
 });
+function applyTheme() {
+  renderTripBar();
+  setMapTheme(isDark());
+}
+elements.themeToggle.addEventListener('click', () => {
+  toggleTheme();
+  applyTheme();
+});
+onSystemThemeChange(applyTheme);
 elements.tripSelect.addEventListener('change', () => switchTrip(elements.tripSelect.value));
 elements.tripNew.addEventListener('click', () => {
   const trip = createTrip();

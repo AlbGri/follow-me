@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.0 - 2026-11-17
+- Nuovo aspetto, lo stesso degli altri progetti di albgri.com: caratteri Alegreya e Atkinson
+  Hyperlegible Next, pulsanti e finestre rinnovati, icone disegnate al posto dei simboli
+- Tema scuro, con la mappa scura: segue quello del sistema finché non lo scegli con il pulsante,
+  poi la scelta resta
+- Errori in un riquadro evidenziato che dice cosa è successo e cosa fare
+- Immagine esportata su fondo chiaro, con il titolo nel nuovo carattere e l'indirizzo dell'app in basso
+
 ## 0.4.1 - 2026-11-14
 - Nuovo indirizzo: follow-me.albgri.com, al posto di fm.albgri.com. I link corti gia' condivisi si aprono
   sostituendo fm con follow-me; i viaggi salvati nel browser sul vecchio indirizzo non passano al nuovo
