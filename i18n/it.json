@@ -52,6 +52,7 @@
   "image.working": "Preparo l'immagine...",
   "image.error": "Immagine non creata: qualcosa è andato storto, riprova tra poco.",
   "day.count": "{count} tappe",
+  "day.countOne": "1 tappa",
   "day.collapse": "Comprimi giorno",
   "day.expand": "Espandi giorno",
   "day.collapseAll": "Comprimi tutto",

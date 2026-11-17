@@ -8,7 +8,9 @@ const LINE_PREFIX = /^(?:\d+[.)]|[-*•])\s*/;
 const TIME = /^(\d{1,2})[:.](\d{2})(?:\s+(.*))?$/;
 const COORDINATES = /\s*\(\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\)$/;
 // "Giorno 2 - Gozo", "Day 2: Gozo", "2 · Gozo" -> "Gozo": parola + numero iniziali sono il nome di default
-const DAY_PREFIX = /^(?:\S+\s+)?\d+\s*(?:[-–:·]\s*(.*))?$/;
+const DAY_PREFIX = /^(?:\S+\s+)?(\d+)\s*(?:[-–:·]\s*(.*))?$/;
+// oltre questo salto un numero non e' la posizione del giorno (es. "Volo 714")
+const MAX_MISSING_DAYS = 30;
 // "2026-10-31 - Gozo", "31/10/2026: Gozo": la data al posto del nome di default
 const DAY_DATE = /^(\d{4}-\d{2}-\d{2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{4})\s*(?:[-–:,·]\s*(.*))?$/;
 // "SAB 31 OTTOBRE 2026 · Gozo", "Sat 31 Oct 2026 - Gozo": data scritta del formato da condividere
@@ -76,20 +78,28 @@ export function linesToStops(text) {
  * Legge un viaggio dal testo, in entrambi i formati (con simboli o da condividere).
  * Senza simboli: una riga libera seguita da tappe e' un giorno, la prima riga libera del testo il titolo;
  * le altre righe libere vengono ignorate. Le tappe senza coordinate hanno lat/lng null.
- * La data di inizio viene dal primo giorno con una data; un giorno datato piu' avanti della sua
- * posizione riceve prima i giorni vuoti mancanti (il formato da condividere li omette).
+ * La data di inizio viene dal primo giorno con una data; un giorno datato o numerato ("Giorno 3")
+ * piu' avanti della sua posizione riceve prima i giorni vuoti mancanti (il formato da condividere li omette).
  * @returns {{title: string, startDate: string,
  *   days: {label: string, stops: {name: string, time: string, lat: ?number, lng: ?number}[]}[]}}
  */
 export function textToTrip(text) {
   const trip = { title: '', startDate: '', days: [] };
   let freeLine = '';
+  // "Giorno 5" come primo giorno numerato non crea quattro giorni vuoti davanti
+  let numberOffset = null;
+  const addEmptyDaysUpTo = (position) => {
+    if (position - trip.days.length > MAX_MISSING_DAYS) return;
+    while (trip.days.length < position) trip.days.push({ label: '', stops: [] });
+  };
 
   const addDay = (header) => {
-    const { label, date } = parseDayHeader(header);
+    const { label, date, number } = parseDayHeader(header);
     if (date && !trip.startDate) trip.startDate = startDateFor(date, trip.days.length);
-    if (date) {
-      while (trip.days.length < daysBetween(trip.startDate, date)) trip.days.push({ label: '', stops: [] });
+    if (date) addEmptyDaysUpTo(daysBetween(trip.startDate, date));
+    else if (number && !trip.startDate) {
+      numberOffset ??= number - 1 - trip.days.length;
+      addEmptyDaysUpTo(number - 1 - numberOffset);
     }
     trip.days.push({ label, stops: [] });
   };
@@ -131,7 +141,8 @@ function parseDayHeader(text) {
   const writtenDate = written ? parseWrittenDate(written[1], written[2], written[3]) : '';
   if (writtenDate) return { label: (written[4] ?? '').trim(), date: writtenDate };
   const prefix = text.match(DAY_PREFIX);
-  return { label: prefix ? (prefix[1] ?? '').trim() : text, date: '' };
+  if (prefix) return { label: (prefix[2] ?? '').trim(), date: '', number: Number(prefix[1]) };
+  return { label: text, date: '' };
 }
 
 function parseStop(text) {

@@ -200,16 +200,28 @@ function renderDay(day, dayIndex) {
   card.style.setProperty('--day-color', dayColor(dayIndex));
   card.addEventListener('click', () => setActiveDay(day.id));
 
+  const defaultName = dayDate(dayIndex) ? '' : t('day.default', { n: dayIndex + 1 });
   const labelInput = el('input', {
     className: 'campo day-label',
     value: day.label,
-    placeholder: dayDate(dayIndex) ? t('day.titlePlaceholder') : t('day.default', { n: dayIndex + 1 }),
+    placeholder: defaultName || t('day.titlePlaceholder'),
     oninput: () => {
       day.label = labelInput.value.trim();
       save();
       renderDayFilter(currentTrip());
     },
   });
+  // compresso: etichetta come testo che va a capo, matita e X solo a giorno aperto
+  const header = collapsed
+    ? [
+        el('span', { className: 'day-label day-label-text', textContent: day.label || defaultName }),
+        el('span', { className: 'day-count', textContent: t(day.stops.length === 1 ? 'day.countOne' : 'day.count', { count: day.stops.length }) }),
+      ]
+    : [
+        labelInput,
+        iconButton('pencil', t('day.editText'), () => startTextEdit(day)),
+        iconButton('close', t('day.delete'), () => deleteDay(day), 'pericolo'),
+      ];
   card.append(
     el(
       'header',
@@ -217,10 +229,7 @@ function renderDay(day, dayIndex) {
       iconButton(collapsed ? 'right' : 'down', t(collapsed ? 'day.expand' : 'day.collapse'), () => toggleCollapsed(day.id)),
       el('span', { className: 'day-dot', title: t('day.drag') }),
       ...(dayDate(dayIndex) ? [el('span', { className: 'day-date', textContent: dayDate(dayIndex) })] : []),
-      labelInput,
-      el('span', { className: 'day-count', textContent: t('day.count', { count: day.stops.length }) }),
-      iconButton('pencil', t('day.editText'), () => startTextEdit(day)),
-      iconButton('close', t('day.delete'), () => deleteDay(day), 'pericolo'),
+      ...header,
     ),
   );
   if (editing) card.append(renderTextEditor());

@@ -52,6 +52,7 @@
   "image.working": "Preparing the image...",
   "image.error": "Image not created: something went wrong, try again shortly.",
   "day.count": "{count} stops",
+  "day.countOne": "1 stop",
   "day.collapse": "Collapse day",
   "day.expand": "Expand day",
   "day.collapseAll": "Collapse all",

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.5.1 - 2026-11-17
+- Giorno compresso: l'etichetta si legge intera, su più righe se serve; matita e X compaiono
+  aprendo il giorno
+- Reimport del testo da condividere senza data di inizio: i giorni vuoti tornano al loro posto
+  invece di far scalare i successivi
+- "1 tappa" invece di "1 tappe"
+
 ## 0.5.0 - 2026-11-17
 - Nuovo aspetto, lo stesso degli altri progetti di albgri.com: caratteri Alegreya e Atkinson
   Hyperlegible Next, pulsanti e finestre rinnovati, icone disegnate al posto dei simboli
