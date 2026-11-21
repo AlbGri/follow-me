@@ -1,4 +1,4 @@
-/* Stile comune AlbGri - versione 2026-11-21
+/* Stile comune AlbGri - versione 2026-11-21.2
    Regole e motivi: progetto albgri-stile
    Questo file si copia nei progetti: le modifiche si fanno nell'originale e poi si ricopia.
    Caratteri: cartella caratteri/ accanto a questo file, da copiare insieme; caratteri.css va collegato prima. */
@@ -43,12 +43,21 @@
 
 /* ---- Base ---- */
 * { box-sizing: border-box; }
+/* il salto a un'ancora non deve finire sotto la barra fissa: altezza della barra piu' un margine */
+html { scroll-padding-top: 60px; }
 body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 var(--sans); }
 :focus-visible { outline: 3px solid var(--segno); outline-offset: 2px; }
 p { margin: 0 0 8px; }
 input[type="checkbox"], input[type="radio"] { accent-color: var(--ink); }
 .tenue { color: var(--muted); }
 a.rimando { color: var(--segno); font-weight: 700; text-decoration: var(--sottolinea); text-underline-offset: 2px; background-image: var(--evidenzia); }
+pre { margin: 0 0 10px; padding: 8px 10px; overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 6px;
+  font: 14px/1.4 var(--mono); }
+code { font-family: var(--mono); font-size: .9em; }
+pre code { font-size: inherit; }
+/* codice in linea: --surface sul fondo (con --surface-2 non si vede), il fondo dentro una superficie */
+:not(pre) > code { padding: .1em .3em; background: var(--surface); border-radius: 4px; overflow-wrap: anywhere; }
+.scheda :not(pre) > code, .finestra :not(pre) > code { background: var(--bg); }
 
 /* ---- Guscio: barra, mappa, pagina ---- */
 .barra { position: sticky; top: 0; z-index: 5; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; padding: 8px 16px;
@@ -110,7 +119,7 @@ details.piega > :not(summary) { margin: 0 0 10px; }
 .fila { margin: 12px 0 0; }
 .fila > h2 { font: 500 1.05rem var(--serif); color: var(--muted); margin: 0 0 6px; }
 .fila > h2 small { font: .85rem var(--sans); margin-left: 6px; }
-/* auto-fit: ogni fila occupa tutta la larghezza, senza buchi a destra */
+/* auto-fit: le colonne arrivano al bordo destro; l'ultima riga puo' restare corta */
 .riquadri { display: grid; grid-template-columns: repeat(auto-fit, minmax(134px, 1fr)); gap: 8px; }
 /* riquadri di solo testo: piu' larghi, per stare su due o tre righe */
 .riquadri.larghi { grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); }
@@ -151,6 +160,19 @@ details.piega > :not(summary) { margin: 0 0 10px; }
 .tabella { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .tabella th, .tabella td { padding: 3px 0; border-bottom: 1px solid var(--line); text-align: right; }
 .tabella th:first-child, .tabella td:first-child { text-align: left; }
+
+/* ---- Testi lunghi: documenti e guide dentro .documento ---- */
+.documento h2 { font: 700 1.35rem/1.2 var(--serif); margin: 22px 0 6px; }
+.documento h3 { font: 700 1.1rem/1.25 var(--serif); margin: 16px 0 4px; }
+/* il titolo raggiunto da un link e' "dove sei": lo stesso tratto del titolo di un riquadro */
+.documento :is(h2, h3):target { text-decoration: underline 3px var(--accent); text-underline-offset: 3px; }
+.documento ul, .documento ol { margin: 0 0 8px; padding-left: 22px; }
+.documento li { margin-bottom: 2px; }
+.documento li > p { margin-bottom: 4px; }
+/* tabelle di testo: solo filetti orizzontali, a sinistra; larghe, scorrono di lato. Quelle di numeri restano .tabella */
+.documento table:not(.tabella) { display: block; max-width: 100%; overflow-x: auto; margin: 0 0 10px; border-collapse: collapse; }
+.documento table:not(.tabella) :is(th, td) { padding: 4px 14px 4px 0; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.documento table:not(.tabella) th { border-bottom-color: var(--muted); }
 
 /* ---- Piede ---- */
 .piede { margin-top: 16px; padding-top: 8px; border-top: 1px solid var(--line); font-size: .88rem; color: var(--muted); }
@@ -197,8 +219,13 @@ dialog.finestra h2 { font: 700 1.25rem/1.2 var(--serif); margin: 0 0 8px; }
 
 /* ---- Telefono ---- */
 @media (max-width: 760px) {
+  /* marchio e controlli sulla prima riga, briciole sulla seconda: la barra ha un'altezza prevedibile */
+  .briciole { order: 1; flex-basis: 100%; }
+  .briciole:empty { display: none; }
+  html { scroll-padding-top: 90px; }
   .pagina { grid-template-columns: minmax(0, 1fr); padding: 10px 12px 60px; }
   .aggiornato { display: none; }
+  .aggiornato + .controlli { margin-left: auto; }
   h1 { font-size: 1.55rem; }
   #mappa { position: fixed; inset: auto 0 0 0; top: auto; z-index: 20; max-height: 72vh; padding: 12px 16px 70px; background: var(--surface);
     border-top: 2px solid var(--ink); border-radius: 12px 12px 0 0; visibility: hidden; }
