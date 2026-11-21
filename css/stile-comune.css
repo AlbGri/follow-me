@@ -1,4 +1,4 @@
-/* Stile comune AlbGri - versione 2026-11-21.2
+/* Stile comune AlbGri - versione 2026-11-21.3
    Regole e motivi: progetto albgri-stile
    Questo file si copia nei progetti: le modifiche si fanno nell'originale e poi si ricopia.
    Caratteri: cartella caratteri/ accanto a questo file, da copiare insieme; caratteri.css va collegato prima. */
@@ -66,6 +66,8 @@ pre code { font-size: inherit; }
 .briciole, .aggiornato { font-size: .9rem; color: var(--muted); }
 .briciole a { color: inherit; }
 .aggiornato { margin-left: auto; }
+/* ripetizione nel piede di cio' che sul telefono sparisce dalla barra (la data) */
+.solo-telefono { display: none; }
 
 .pagina { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 0 18px; align-items: start; padding: 14px 16px 20px; }
 
@@ -95,6 +97,11 @@ pre code { font-size: inherit; }
 /* ---- Contenuto: titoli, pulsanti, sezioni ripiegate ---- */
 main { min-width: 0; }
 h1 { font: 700 1.9rem/1.1 var(--serif); letter-spacing: -.01em; margin: 0 0 6px; }
+/* titoli di sezione ovunque; fila, scheda, mappa e finestra hanno i loro */
+h2 { font: 700 1.35rem/1.2 var(--serif); margin: 22px 0 6px; }
+h3 { font: 700 1.1rem/1.25 var(--serif); margin: 16px 0 4px; }
+/* il titolo raggiunto da un link e' "dove sei": lo stesso tratto del titolo di un riquadro */
+:is(h2, h3):target { text-decoration: underline 3px var(--accent); text-underline-offset: 3px; }
 .testata { display: flex; flex-wrap: wrap; gap: 6px 20px; align-items: center; justify-content: space-between; margin-bottom: 6px; }
 .testata h1 { margin: 0; }
 
@@ -143,9 +150,10 @@ details.piega > :not(summary) { margin: 0 0 10px; }
 .scheda { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; }
 .scheda h2 { font: 700 1rem var(--sans); margin: 0 0 4px; }
 .grafico { position: relative; margin-top: 6px; }
-.grafico svg { display: block; width: 100%; touch-action: pan-y; }
-.grafico text { font: 12.5px var(--sans); fill: var(--muted); }
-.grafico text.valore { fill: var(--ink); font-weight: 700; }
+/* solo l'SVG figlio diretto: quello di una libreria (Plotly) sta piu' in basso e ha i suoi stili */
+.grafico > svg { display: block; width: 100%; touch-action: pan-y; }
+.grafico > svg text { font: 12.5px var(--sans); fill: var(--muted); }
+.grafico > svg text.valore { fill: var(--ink); font-weight: 700; }
 .g-banda { fill: var(--surface-2); }
 .g-griglia { stroke: var(--line); }
 .g-mirino { stroke: var(--muted); }
@@ -160,12 +168,13 @@ details.piega > :not(summary) { margin: 0 0 10px; }
 .tabella { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
 .tabella th, .tabella td { padding: 3px 0; border-bottom: 1px solid var(--line); text-align: right; }
 .tabella th:first-child, .tabella td:first-child { text-align: left; }
+/* senza spazio due colonne di numeri allineati a destra si toccano */
+.tabella :is(th, td) + :is(th, td) { padding-left: 14px; }
+.tabella thead th { font-size: .88rem; color: var(--muted); vertical-align: bottom; border-bottom-color: var(--muted); }
+/* il giallo su centinaia di righe sarebbe rumore: link del colore del testo, sottolineato */
+.tabella a { color: inherit; text-underline-offset: 2px; }
 
 /* ---- Testi lunghi: documenti e guide dentro .documento ---- */
-.documento h2 { font: 700 1.35rem/1.2 var(--serif); margin: 22px 0 6px; }
-.documento h3 { font: 700 1.1rem/1.25 var(--serif); margin: 16px 0 4px; }
-/* il titolo raggiunto da un link e' "dove sei": lo stesso tratto del titolo di un riquadro */
-.documento :is(h2, h3):target { text-decoration: underline 3px var(--accent); text-underline-offset: 3px; }
 .documento ul, .documento ol { margin: 0 0 8px; padding-left: 22px; }
 .documento li { margin-bottom: 2px; }
 .documento li > p { margin-bottom: 4px; }
@@ -225,6 +234,7 @@ dialog.finestra h2 { font: 700 1.25rem/1.2 var(--serif); margin: 0 0 8px; }
   html { scroll-padding-top: 90px; }
   .pagina { grid-template-columns: minmax(0, 1fr); padding: 10px 12px 60px; }
   .aggiornato { display: none; }
+  .solo-telefono { display: inline; }
   .aggiornato + .controlli { margin-left: auto; }
   h1 { font-size: 1.55rem; }
   #mappa { position: fixed; inset: auto 0 0 0; top: auto; z-index: 20; max-height: 72vh; padding: 12px 16px 70px; background: var(--surface);
@@ -239,6 +249,7 @@ dialog.finestra h2 { font: 700 1.25rem/1.2 var(--serif); margin: 0 0 8px; }
   .riquadri { display: flex; overflow-x: auto; scroll-snap-type: x proximity; margin: 0 -12px; padding: 0 12px 6px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
   .riquadro { flex: 0 0 46%; scroll-snap-align: start; scroll-margin-left: 12px; }
   .storia { grid-template-columns: minmax(0, 1fr); }
+  .tabella :is(th, td) + :is(th, td) { padding-left: 8px; }
   .riquadri.larghi .riquadro { flex-basis: 72%; }
   .toast { bottom: 58px; }
   /* sul telefono i controlli restano nella barra, senza le scritte */
