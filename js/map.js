@@ -1,4 +1,4 @@
-import * as maplibregl from 'https://unpkg.com/maplibre-gl@6.16.0/dist/maplibre-gl.mjs';
+import * as maplibregl from '../vendor/maplibre-gl-6.16.0/maplibre-gl.mjs';
 
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
 // OpenFreeMap non documenta questo stile: se non si carica si torna a liberty

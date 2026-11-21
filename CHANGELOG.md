@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.2 - 2026-11-21
+- Librerie e caratteri ora arrivano dal sito: per avviare l'app non si contattano più unpkg, jsDelivr
+  o altri servizi; restano esterne solo le mappe e la ricerca dei luoghi
+
 ## 0.5.1 - 2026-11-17
 - Giorno compresso: l'etichetta si legge intera, su più righe se serve; matita e X compaiono
   aprendo il giorno

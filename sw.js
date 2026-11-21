@@ -1,18 +1,19 @@
 // Service worker: l'app funziona offline (mappa esclusa).
 // File dell'app: prima la rete (gli aggiornamenti arrivano subito), cache se offline.
-// Librerie da CDN (MapLibre, SortableJS): versione fissata, quindi cache-first.
+// Librerie in vendor/ (MapLibre, SortableJS): versione nel percorso, quindi prima la cache.
 // Tile e Nominatim non vengono mai messi in cache (policy dei servizi).
-const CACHE_NAME = 'follow-me-v6';
+const CACHE_NAME = 'follow-me-v7';
 const APP_FILES = [
   './',
   'index.html',
   'manifest.webmanifest',
   'css/stile-comune.css',
   'css/style.css',
-  'fonts/alegreya-latin.woff2',
-  'fonts/alegreya-latin-ext.woff2',
-  'fonts/atkinson-next-latin.woff2',
-  'fonts/atkinson-next-latin-ext.woff2',
+  'css/caratteri/caratteri.css',
+  'css/caratteri/alegreya-latin.woff2',
+  'css/caratteri/alegreya-latin-ext.woff2',
+  'css/caratteri/atkinson-next-latin.woff2',
+  'css/caratteri/atkinson-next-latin-ext.woff2',
   'js/app.js',
   'js/dates.js',
   'js/dialog.js',
@@ -34,18 +35,17 @@ const APP_FILES = [
   'icons/icon.svg',
   'icons/icon-192.png',
 ];
-const CDN_HOSTS = ['unpkg.com', 'cdn.jsdelivr.net'];
 // Versioni allineate a index.html, js/map.js e js/app.js. Il worker di MapLibre viene richiesto con ?v=
-const MAPLIBRE = 'https://unpkg.com/maplibre-gl@6.16.0/dist';
-const CDN_FILES = [
+const MAPLIBRE = 'vendor/maplibre-gl-6.16.0';
+const VENDOR_FILES = [
   `${MAPLIBRE}/maplibre-gl.css`,
   `${MAPLIBRE}/maplibre-gl.mjs`,
   `${MAPLIBRE}/maplibre-gl-worker.mjs?v=6.16.0`,
-  'https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/modular/sortable.esm.js',
+  'vendor/sortablejs-1.15.7/sortable.esm.js',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([...APP_FILES, ...CDN_FILES])));
+  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll([...APP_FILES, ...VENDOR_FILES])));
   self.skipWaiting();
 });
 
@@ -62,11 +62,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.origin === location.origin) {
-    event.respondWith(networkFirst(request));
-  } else if (CDN_HOSTS.includes(url.host)) {
-    event.respondWith(cacheFirst(request));
-  }
+  if (url.origin !== location.origin) return;
+  event.respondWith(url.pathname.includes('/vendor/') ? cacheFirst(request) : networkFirst(request));
 });
 
 async function networkFirst(request) {

@@ -1,7 +1,7 @@
-/* Stile comune AlbGri - versione 2026-11-17
+/* Stile comune AlbGri - versione 2026-11-21
    Regole e motivi: progetto albgri-stile
    Questo file si copia nei progetti: le modifiche si fanno nell'originale e poi si ricopia.
-   Caratteri da caricare a parte: Alegreya 500 e 700, Atkinson Hyperlegible Next 400 e 700. */
+   Caratteri: cartella caratteri/ accanto a questo file, da copiare insieme; caratteri.css va collegato prima. */
 
 /* ---- Variabili ---- */
 :root {
@@ -16,6 +16,10 @@
   /* Serie dei grafici, in ordine fisso: blu petrolio, ruggine, viola, verde bosco, prugna, turchese, ocra, mattone */
   --s1: #1d85b0; --s2: #c06325; --s3: #5e3d9e; --s4: #317a45; --s5: #912e6e; --s6: #009f98; --s7: #9d6d1c; --s8: #843b3e;
   --dato: var(--s1);
+  /* Scale delle mappe: --seq1 e' il valore basso; --div1 il piu' sotto lo zero (blu), --div4 lo zero, --div7 il piu' sopra (ruggine) */
+  --seq1: #d2edfc; --seq2: #8fcae9; --seq3: #45a4d0; --seq4: #097ca6; --seq5: #015473;
+  --div1: #026083; --div2: #3294c0; --div3: #90c6e3; --div4: #e4e6ec; --div5: #e4b196; --div6: #be7449; --div7: #814622;
+  --nessun-dato: repeating-linear-gradient(45deg, var(--line) 0 2px, var(--surface) 2px 6px);
 }
 /* Scuro per scelta salvata (data-tema) oppure, senza scelta, secondo il sistema: i due blocchi restano uguali */
 :root[data-tema="scuro"] {
@@ -23,6 +27,8 @@
   --bg: #19171c; --surface: #232025; --surface-2: #2b282e; --ink: #e7e7ee; --muted: #a6a5af; --line: #3f3b44;
   --on-accent: #19171c; --segno: var(--accent); --sottolinea: underline; --evidenzia: none; --pericolo: #f2897e;
   --s1: #2f98c6; --s2: #d07843; --s3: #805fca; --s4: #56a76a; --s5: #b54481; --s6: #00aaa3; --s7: #b28c32; --s8: #b04d59;
+  --seq1: #1e3c4b; --seq2: #215c78; --seq3: #2a81a8; --seq4: #4caad7; --seq5: #98d4f3;
+  --div1: #8eceef; --div2: #3d9eca; --div3: #1e6c8d; --div4: #383a41; --div5: #8c5331; --div6: #c87d52; --div7: #efb696;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-tema="chiaro"]) {
@@ -30,6 +36,8 @@
     --bg: #19171c; --surface: #232025; --surface-2: #2b282e; --ink: #e7e7ee; --muted: #a6a5af; --line: #3f3b44;
     --on-accent: #19171c; --segno: var(--accent); --sottolinea: underline; --evidenzia: none; --pericolo: #f2897e;
     --s1: #2f98c6; --s2: #d07843; --s3: #805fca; --s4: #56a76a; --s5: #b54481; --s6: #00aaa3; --s7: #b28c32; --s8: #b04d59;
+    --seq1: #1e3c4b; --seq2: #215c78; --seq3: #2a81a8; --seq4: #4caad7; --seq5: #98d4f3;
+    --div1: #8eceef; --div2: #3d9eca; --div3: #1e6c8d; --div4: #383a41; --div5: #8c5331; --div6: #c87d52; --div7: #efb696;
   }
 }
 
@@ -53,7 +61,8 @@ a.rimando { color: var(--segno); font-weight: 700; text-decoration: var(--sottol
 .pagina { display: grid; grid-template-columns: 216px minmax(0, 1fr); gap: 0 18px; align-items: start; padding: 14px 16px 20px; }
 
 /* Mappa "voi siete qui": una linea con le fermate, il ramo corrente aperto */
-#mappa { position: sticky; top: 58px; max-height: calc(100vh - 70px); overflow: auto; font-size: .92rem; }
+#mappa { position: sticky; top: 58px; max-height: calc(100vh - 70px); overflow: auto; padding-left: 1px; font-size: .92rem; }
+/* padding-left: overflow taglia il pallino "sei qui" (left: -1px); sul telefono lo sostituisce il padding sotto */
 #mappa h2 { font: 500 1.05rem var(--serif); color: var(--muted); margin: 0 0 6px; }
 #mappa ul { list-style: none; margin: 0; padding: 0; }
 #mappa li { position: relative; padding-left: 20px; }
@@ -69,7 +78,8 @@ a.rimando { color: var(--segno); font-weight: 700; text-decoration: var(--sottol
 #mappa summary::after { content: "+"; float: right; color: var(--muted); }
 #mappa details[open] > summary::after { content: "\2212"; }
 #mappa a[aria-current] { font-weight: 700; }
-#mappa a[aria-current]::before { background: var(--accent); border-color: var(--segno); }
+/* "sei qui" sempre col pallino grande, a ogni livello: in quello piccolo il giallo non si vedeva */
+#mappa a[aria-current]::before { left: -1px; top: 7px; width: 14px; height: 14px; background: var(--accent); border: 1.5px solid var(--segno); }
 #mappa a[aria-current]::after { content: "sei qui"; margin-left: 8px; font-weight: 400; font-size: .82rem; color: var(--muted); }
 .btn.fab { display: none; }
 
@@ -193,7 +203,12 @@ dialog.finestra h2 { font: 700 1.25rem/1.2 var(--serif); margin: 0 0 8px; }
   #mappa { position: fixed; inset: auto 0 0 0; top: auto; z-index: 20; max-height: 72vh; padding: 12px 16px 70px; background: var(--surface);
     border-top: 2px solid var(--ink); border-radius: 12px 12px 0 0; visibility: hidden; }
   .mappa-aperta #mappa { visibility: visible; }
-  .btn.fab { display: block; position: fixed; right: 14px; bottom: 14px; z-index: 21; padding: 8px 13px; border-radius: 999px; font-size: .9rem; }
+  /* "Mappa" non e' giallo (il giallo pieno e' "cosa fare"): porta il pallino "sei qui" della mappa */
+  .btn.fab { display: block; position: fixed; right: 14px; bottom: 14px; z-index: 21; padding: 8px 13px; border-radius: 999px; border-color: var(--ink);
+    font-size: .9rem; font-weight: 700; }
+  .btn.fab::before { content: ""; display: inline-block; width: 11px; height: 11px; margin-right: 6px; vertical-align: -1px; border-radius: 50%;
+    background: var(--accent); border: 1.5px solid var(--segno); }
+  .mappa-aperta .btn.fab::before { display: none; }
   .riquadri { display: flex; overflow-x: auto; scroll-snap-type: x proximity; margin: 0 -12px; padding: 0 12px 6px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
   .riquadro { flex: 0 0 46%; scroll-snap-align: start; scroll-margin-left: 12px; }
   .storia { grid-template-columns: minmax(0, 1fr); }

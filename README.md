@@ -42,10 +42,11 @@ Per post e messaggi c'è anche il formato "da condividere", senza simboli né co
 le tappe vengono cercate per nome.
 
 ## Avvio locale
-Serve un server statico qualsiasi (i moduli ES non funzionano da `file://`), ad esempio:
+Serve un server statico qualsiasi che mandi i file `.mjs` come JavaScript (i moduli ES non
+funzionano da `file://`). Con Python, che su Windows puo' mandarli come testo:
 
 ```
-python -m http.server 8000
+python -c "import http.server as s; s.SimpleHTTPRequestHandler.extensions_map['.mjs'] = 'text/javascript'; s.test(s.SimpleHTTPRequestHandler, port=8000)"
 ```
 
 poi aprire http://localhost:8000
@@ -58,4 +59,5 @@ poi aprire http://localhost:8000
 - Caratteri: [Alegreya](https://github.com/huertatipografica/Alegreya) e [Atkinson Hyperlegible Next](https://github.com/googlefonts/atkinson-hyperlegible-next)
 
 ## Licenza
-[AGPL-3.0](LICENSE). I caratteri in `fonts/` hanno la loro licenza, SIL Open Font License 1.1 (file `OFL-*.txt`).
+[AGPL-3.0](LICENSE). I caratteri in `css/caratteri/` hanno la loro licenza, SIL Open Font License 1.1 (file `OFL-*.txt`);
+le librerie in `vendor/` la loro, accanto ai file: BSD a 3 clausole per MapLibre GL JS, MIT per SortableJS.

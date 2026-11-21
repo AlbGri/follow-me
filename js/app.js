@@ -1,4 +1,4 @@
-import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.7/modular/sortable.esm.js';
+import Sortable from '../vendor/sortablejs-1.15.7/sortable.esm.js';
 import { initI18n, setLanguage, getLanguage, t } from './i18n.js';
 import {
   loadState,
