@@ -1,7 +1,6 @@
 # Follow Me
 
-Web app per disegnare su mappa i giri di un viaggio: tappe divise per giorno, in ordine,
-da condividere come testo, link o immagine.
+Web app per disegnare su mappa i giri di un viaggio: tappe divise per giorno, in ordine, da condividere come testo, link o immagine.
 
 **Prova l'app: https://follow-me.albgri.com/**
 
@@ -32,18 +31,14 @@ da condividere come testo, link o immagine.
 ## Giorno 2 - Gozo
 1. Cittadella, Victoria, Gozo
 ```
-Orario e coordinate sono opzionali: le tappe senza coordinate vengono cercate per nome
-durante l'import. Le parole ("Giorno", "Day") non contano, solo i simboli `#`, `##` e i numeri.
+Orario e coordinate sono opzionali: le tappe senza coordinate vengono cercate per nome durante l'import. Le parole ("Giorno", "Day") non contano, solo i simboli `#`, `##` e i numeri.
 
 Se il viaggio ha una data di inizio, i giorni si scrivono con la loro data: `## 2026-10-31 - La Valletta`.
 
-Per post e messaggi c'è anche il formato "da condividere", senza simboli né coordinate
-(`Sab 31 ottobre 2026 · La Valletta` seguito dalle tappe numerate). Si reimporta anche questo:
-le tappe vengono cercate per nome.
+Per post e messaggi c'è anche il formato "da condividere", senza simboli né coordinate (`Sab 31 ottobre 2026 · La Valletta` seguito dalle tappe numerate). Si reimporta anche questo: le tappe vengono cercate per nome.
 
 ## Avvio locale
-Serve un server statico qualsiasi che mandi i file `.mjs` come JavaScript (i moduli ES non
-funzionano da `file://`). Con Python, che su Windows puo' mandarli come testo:
+Serve un server statico qualsiasi che mandi i file `.mjs` come JavaScript (i moduli ES non funzionano da `file://`). Con Python, che su Windows puo' mandarli come testo:
 
 ```
 python -c "import http.server as s; s.SimpleHTTPRequestHandler.extensions_map['.mjs'] = 'text/javascript'; s.test(s.SimpleHTTPRequestHandler, port=8000)"
@@ -59,5 +54,4 @@ poi aprire http://localhost:8000
 - Caratteri: [Alegreya](https://github.com/huertatipografica/Alegreya) e [Atkinson Hyperlegible Next](https://github.com/googlefonts/atkinson-hyperlegible-next)
 
 ## Licenza
-[AGPL-3.0](LICENSE). I caratteri in `css/caratteri/` hanno la loro licenza, SIL Open Font License 1.1 (file `OFL-*.txt`);
-le librerie in `vendor/` la loro, accanto ai file: BSD a 3 clausole per MapLibre GL JS, MIT per SortableJS.
+[AGPL-3.0](LICENSE). I caratteri in `css/caratteri/` hanno la loro licenza, SIL Open Font License 1.1 (file `OFL-*.txt`); le librerie in `vendor/` la loro, accanto ai file: BSD a 3 clausole per MapLibre GL JS, MIT per SortableJS.
