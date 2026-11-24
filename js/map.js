@@ -3,7 +3,7 @@ import * as maplibregl from '../vendor/maplibre-gl-6.16.0/maplibre-gl.mjs';
 const STYLE_URL = 'https://tiles.openfreemap.org/styles/liberty';
 // OpenFreeMap non documenta questo stile: se non si carica si torna a liberty
 const DARK_STYLE_URL = 'https://tiles.openfreemap.org/styles/fiord';
-const DAY_COLORS = ['#e6194b', '#4363d8', '#3cb44b', '#f58231', '#911eb4', '#0aa5b8', '#f032e6', '#9a6324'];
+const DAY_COLORS = ['#e6194b', '#4363d8', '#3cb44b', '#f58231', '#911eb4', '#0aa5b8', '#f032e6', '#9a6324']; // stile:consentito
 const ROUTE_SOURCE = 'routes';
 // sotto questo zoom la vista e' troppo ampia per orientare la ricerca
 const MIN_ZOOM_FOR_SEARCH_AREA = 6;
@@ -39,7 +39,7 @@ function addRouteLayers(target, data) {
     type: 'line',
     source: ROUTE_SOURCE,
     layout,
-    paint: { 'line-color': '#ffffff', 'line-width': 7 },
+    paint: { 'line-color': '#ffffff', 'line-width': 7 }, // stile:consentito
   });
   target.addLayer({
     id: 'routes',

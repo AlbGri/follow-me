@@ -9,10 +9,10 @@ const ATTRIBUTION = '© OpenStreetMap contributors · © OpenMapTiles · OpenFre
 const SITE = 'follow-me.albgri.com';
 const FONT_FAMILY = '"Atkinson Hyperlegible Next", "Segoe UI", Roboto, sans-serif';
 const TITLE_FONT = '700 44px Alegreya, Palatino, Georgia, serif';
-const BACKGROUND_COLOR = '#f4f6fa';
-const TEXT_COLOR = '#26242b';
-const MUTED_COLOR = '#625f69';
-const HIGHLIGHT_COLOR = '#f6eb61';
+const BACKGROUND_COLOR = '#f4f6fa'; // stile:consentito
+const TEXT_COLOR = '#26242b'; // stile:consentito
+const MUTED_COLOR = '#625f69'; // stile:consentito
+const HIGHLIGHT_COLOR = '#f6eb61'; // stile:consentito
 // la mappa e' generata a meta' risoluzione CSS con pixelRatio 2: etichette leggibili a 1080px
 const PIXEL_RATIO = 2;
 
@@ -154,13 +154,13 @@ function drawRow(context, row, x, y, maxWidth) {
 
 function drawBadge(context, centerX, centerY, radius, color, number) {
   context.fillStyle = color;
-  context.strokeStyle = '#ffffff';
+  context.strokeStyle = '#ffffff'; // stile:consentito
   context.lineWidth = Math.max(2, radius / 6);
   context.beginPath();
   context.arc(centerX, centerY, radius, 0, Math.PI * 2);
   context.fill();
   context.stroke();
-  context.fillStyle = '#ffffff';
+  context.fillStyle = '#ffffff'; // stile:consentito
   context.font = `700 ${Math.round(radius * 1.05)}px ${FONT_FAMILY}`;
   context.textAlign = 'center';
   context.fillText(String(number), centerX, centerY + 1);

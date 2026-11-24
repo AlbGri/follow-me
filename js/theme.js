@@ -2,7 +2,7 @@
 // index.html la applica gia' prima del primo disegno, per non far lampeggiare il chiaro.
 const STORAGE_KEY = 'follow-me/tema';
 // colore della barra del telefono: quello della superficie, nei due temi
-const BAR_COLORS = { chiaro: '#f4f6fa', scuro: '#232025' };
+const BAR_COLORS = { chiaro: '#f4f6fa', scuro: '#232025' }; // stile:consentito
 const systemDark = matchMedia('(prefers-color-scheme: dark)');
 
 export function isDark() {
